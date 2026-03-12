@@ -1,0 +1,1723 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="description" content="Releted — Horror survival game on Roblox. Survive against killers, repair items, escape.">
+    <meta name="theme-color" content="#dc2626">
+    <meta property="og:title" content="Releted — Horror Game">
+    <meta property="og:description" content="Experiments have begun. Survival is not guaranteed.">
+    <meta property="og:image" content="ReletedLogo.png">
+    <title>Releted — Horror Game on Roblox</title>
+    <link rel="icon" href="ReletedLogo.png" type="image/png">
+    <link href="https://fonts.googleapis.com/css2?family=Creepster&family=Inter:wght@300;400;600;700;900&family=Press+Start+2P&display=swap" rel="stylesheet">
+<style>
+:root {
+    --red: #dc2626; --red-dark: #991b1b; --red-light: #ef4444;
+    --red-glow: #ff0000; --red-blood: #8b0000;
+    --bg: #0a0a0a; --bg2: #111; --card: #1a1a1a; --card2: #222;
+    --white: #f5f5f5; --dim: #a3a3a3; --gray: #404040;
+    --green: #22c55e; --blue: #3b82f6; --yellow: #facc15; --purple: #a855f7;
+    --font: 'Inter', sans-serif; --title: 'Creepster', cursive; --pixel: 'Press Start 2P', cursive;
+    --ease: cubic-bezier(0.4,0,0.2,1); --tr: all .3s var(--ease);
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth;scroll-padding-top:80px}
+body{font-family:var(--font);background:var(--bg);color:var(--white);overflow-x:hidden;line-height:1.6}
+::selection{background:var(--red);color:#fff}
+::-webkit-scrollbar{width:6px}
+::-webkit-scrollbar-track{background:var(--bg)}
+::-webkit-scrollbar-thumb{background:var(--red-dark);border-radius:3px}
+img{max-width:100%;height:auto}
+a{color:inherit;text-decoration:none}
+.container{max-width:1200px;margin:0 auto;padding:0 20px}
+
+/* Scroll Progress Bar */
+.scroll-progress{position:fixed;top:0;left:0;height:3px;background:linear-gradient(90deg,var(--red-dark),var(--red),var(--red-light));z-index:10001;width:0%;transition:width .1s linear;box-shadow:0 0 10px var(--red-glow)}
+
+/* Back to Top */
+.back-to-top{position:fixed;bottom:30px;right:30px;width:48px;height:48px;border-radius:50%;background:linear-gradient(135deg,var(--red),var(--red-dark));border:none;color:#fff;font-size:1.2rem;cursor:pointer;z-index:999;opacity:0;visibility:hidden;transform:translateY(20px);transition:var(--tr);box-shadow:0 4px 20px rgba(220,38,38,.3);display:flex;align-items:center;justify-content:center}
+.back-to-top.show{opacity:1;visibility:visible;transform:translateY(0)}
+.back-to-top:hover{transform:translateY(-4px);box-shadow:0 8px 30px rgba(220,38,38,.5)}
+.back-to-top svg{width:20px;height:20px}
+
+/* Cursor */
+.cursor-glow{position:fixed;width:300px;height:300px;border-radius:50%;background:radial-gradient(circle,rgba(220,38,38,.06) 0%,transparent 70%);pointer-events:none;z-index:9999;transform:translate(-50%,-50%);opacity:0;will-change:left,top;transition:opacity .4s}
+body:hover .cursor-glow{opacity:1}
+
+/* Particles */
+.particles{position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:0;overflow:hidden}
+.particle{position:absolute;background:var(--red);border-radius:50%;opacity:0;animation:pFloat linear infinite;will-change:transform,opacity}
+@keyframes pFloat{0%{opacity:0;transform:translateY(100vh) scale(0)}10%{opacity:.5}90%{opacity:.5}100%{opacity:0;transform:translateY(-10vh) scale(1)}}
+
+/* Fog */
+.fog{position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:1;overflow:hidden}
+.fog-l{position:absolute;top:0;left:-100%;width:300%;height:100%;background:repeating-linear-gradient(90deg,transparent 0%,rgba(220,38,38,.012) 10%,transparent 20%);opacity:.5}
+.fog-1{animation:fD1 35s linear infinite}
+.fog-2{animation:fD2 45s linear infinite;top:30%;opacity:.3}
+.fog-3{animation:fD3 55s linear infinite;top:60%;opacity:.2}
+@keyframes fD1{to{transform:translateX(33.33%)}}
+@keyframes fD2{to{transform:translateX(-33.33%)}}
+@keyframes fD3{0%{transform:translateX(-10%)}to{transform:translateX(20%)}}
+
+/* Notes on wall */
+.wall-note{position:fixed;z-index:2;padding:12px 16px;background:rgba(30,25,20,.9);border:1px solid rgba(139,90,43,.3);border-radius:4px;font-size:.65rem;color:var(--dim);max-width:140px;line-height:1.5;transform:rotate(var(--rot,0deg));opacity:0;transition:opacity 1s;pointer-events:none;font-style:italic;box-shadow:2px 4px 15px rgba(0,0,0,.5)}
+.wall-note.visible{opacity:.6}
+.wall-note::before{content:'📌';position:absolute;top:-8px;left:10px;font-size:.7rem}
+.note-1{top:25%;left:2%;--rot:-3deg}
+.note-2{top:55%;right:1%;--rot:2deg}
+.note-3{top:80%;left:3%;--rot:-5deg}
+
+/* Navbar */
+.navbar{position:fixed;top:3px;left:0;width:100%;z-index:1000;padding:16px 0;transition:var(--tr);background:transparent}
+.navbar.scrolled{background:rgba(10,10,10,.95);backdrop-filter:blur(25px);-webkit-backdrop-filter:blur(25px);border-bottom:1px solid rgba(220,38,38,.15);padding:8px 0;top:3px}
+.nav-c{max-width:1200px;margin:0 auto;padding:0 20px;display:flex;align-items:center;justify-content:space-between}
+.nav-logo{display:flex;align-items:center;gap:10px;color:var(--white);font-family:var(--title);font-size:1.4rem;letter-spacing:3px;transition:var(--tr)}
+.nav-logo:hover{color:var(--red)}
+.nav-logo img{width:32px;height:32px;object-fit:contain;filter:drop-shadow(0 0 5px rgba(220,38,38,.5))}
+.nav-links{display:flex;list-style:none;gap:16px;align-items:center}
+.nav-link{color:var(--dim);font-size:.72rem;font-weight:500;letter-spacing:1px;text-transform:uppercase;transition:var(--tr);position:relative;padding:4px 0}
+.nav-link::after{content:'';position:absolute;bottom:0;left:0;width:0;height:2px;background:var(--red);transition:var(--tr)}
+.nav-link:hover,.nav-link.active{color:var(--red-light)}
+.nav-link:hover::after,.nav-link.active::after{width:100%}
+
+/* Lang Switcher */
+.lang-sw{position:relative}
+.lang-btn{background:rgba(220,38,38,.1);border:1px solid rgba(220,38,38,.25);color:var(--white);padding:5px 12px;border-radius:8px;cursor:pointer;font-size:.7rem;font-weight:600;letter-spacing:1px;text-transform:uppercase;transition:var(--tr);display:flex;align-items:center;gap:5px;font-family:var(--font)}
+.lang-btn:hover{background:rgba(220,38,38,.2)}
+.lang-btn svg{width:10px;height:10px;transition:var(--tr)}
+.lang-btn.open svg{transform:rotate(180deg)}
+.lang-dd{position:absolute;top:100%;right:0;margin-top:6px;background:var(--card);border:1px solid rgba(220,38,38,.2);border-radius:10px;padding:6px;min-width:130px;opacity:0;visibility:hidden;transform:translateY(-8px);transition:var(--tr);z-index:1001;box-shadow:0 10px 30px rgba(0,0,0,.5)}
+.lang-dd.show{opacity:1;visibility:visible;transform:translateY(0)}
+.lang-opt{display:flex;align-items:center;gap:8px;padding:8px 12px;border-radius:6px;cursor:pointer;transition:var(--tr);font-size:.75rem;color:var(--dim)}
+.lang-opt:hover{background:rgba(220,38,38,.1);color:var(--white)}
+.lang-opt.active{color:var(--red-light)}
+
+/* Mobile */
+.nav-toggle{display:none;flex-direction:column;gap:5px;background:none;border:none;cursor:pointer;padding:5px;z-index:1001}
+.nav-toggle span{width:24px;height:2px;background:var(--white);transition:var(--tr);display:block;border-radius:2px}
+.nav-toggle.active span:nth-child(1){transform:rotate(45deg) translate(5px,5px);background:var(--red)}
+.nav-toggle.active span:nth-child(2){opacity:0}
+.nav-toggle.active span:nth-child(3){transform:rotate(-45deg) translate(5px,-5px);background:var(--red)}
+.mob-menu{position:fixed;inset:0;background:rgba(10,10,10,.98);backdrop-filter:blur(30px);z-index:999;display:flex;align-items:center;justify-content:center;opacity:0;visibility:hidden;transition:all .5s var(--ease)}
+.mob-menu.active{opacity:1;visibility:visible}
+.mob-links{list-style:none;text-align:center;display:flex;flex-direction:column;gap:20px}
+.mob-link{color:var(--white);font-family:var(--title);font-size:1.5rem;letter-spacing:3px;transition:var(--tr);opacity:0;transform:translateY(20px);display:block;padding:5px 15px}
+.mob-menu.active .mob-link{opacity:1;transform:translateY(0)}
+.mob-menu.active .mob-link:nth-child(1){transition-delay:.1s}
+.mob-menu.active .mob-link:nth-child(2){transition-delay:.15s}
+.mob-menu.active .mob-link:nth-child(3){transition-delay:.2s}
+.mob-menu.active .mob-link:nth-child(4){transition-delay:.25s}
+.mob-menu.active .mob-link:nth-child(5){transition-delay:.3s}
+.mob-menu.active .mob-link:nth-child(6){transition-delay:.35s}
+.mob-menu.active .mob-link:nth-child(7){transition-delay:.4s}
+.mob-menu.active .mob-link:nth-child(8){transition-delay:.45s}
+.mob-menu.active .mob-link:nth-child(9){transition-delay:.5s}
+.mob-menu.active .mob-link:nth-child(10){transition-delay:.55s}
+.mob-link:hover{color:var(--red)}
+
+/* Hero */
+.hero{min-height:100vh;display:flex;align-items:center;justify-content:center;position:relative;overflow:hidden;background:radial-gradient(ellipse at 50% 0%,rgba(220,38,38,.12) 0%,transparent 60%),radial-gradient(ellipse at 80% 80%,rgba(139,0,0,.08) 0%,transparent 50%),var(--bg)}
+.hero::before{content:'';position:absolute;inset:0;background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(220,38,38,.006) 2px,rgba(220,38,38,.006) 4px);animation:noiseM 8s infinite linear;pointer-events:none;z-index:1}
+.hero::after{content:'';position:absolute;bottom:0;left:0;width:100%;height:200px;background:linear-gradient(to top,var(--bg),transparent);pointer-events:none;z-index:2}
+@keyframes noiseM{0%,100%{transform:translate(0)}50%{transform:translate(1%,-1%)}}
+.hero-fx{position:absolute;inset:0;pointer-events:none;z-index:3}
+.drip{position:absolute;top:-10px;width:3px;background:linear-gradient(to bottom,var(--red-blood),rgba(139,0,0,.3),transparent);border-radius:0 0 3px 3px;animation:drip ease-in infinite;opacity:.4}
+.d1{left:8%;height:80px;animation-duration:4s}.d2{left:22%;height:130px;animation-duration:5.5s;animation-delay:1s}.d3{left:45%;height:60px;animation-duration:3.5s;animation-delay:2s}.d4{left:68%;height:100px;animation-duration:4.5s;animation-delay:.5s}.d5{left:88%;height:75px;animation-duration:3.2s;animation-delay:1.5s}
+@keyframes drip{0%{transform:scaleY(0);transform-origin:top;opacity:0}20%{opacity:.5}100%{transform:scaleY(1);transform-origin:top;opacity:0}}
+.hero-c{text-align:center;z-index:10;position:relative;padding:0 20px}
+.logo-wrap{position:relative;display:inline-block;margin-bottom:25px}
+.hero-logo{width:140px;height:140px;object-fit:contain;filter:drop-shadow(0 0 25px rgba(220,38,38,.5));animation:lPulse 3s ease-in-out infinite;position:relative;z-index:2;transition:var(--tr)}
+.hero-logo:hover{filter:drop-shadow(0 0 40px rgba(220,38,38,.7));transform:scale(1.08)}
+.logo-glow{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:200px;height:200px;background:radial-gradient(circle,rgba(220,38,38,.2) 0%,transparent 70%);border-radius:50%;animation:gPulse 3s ease-in-out infinite;z-index:1}
+.logo-ring{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:170px;height:170px;border:1px solid rgba(220,38,38,.1);border-radius:50%;animation:rRot 20s linear infinite;z-index:1}
+.logo-ring::before{content:'';position:absolute;top:-3px;left:50%;width:5px;height:5px;background:var(--red);border-radius:50%;box-shadow:0 0 8px var(--red-glow)}
+@keyframes lPulse{0%,100%{transform:scale(1)}50%{transform:scale(1.04)}}
+@keyframes gPulse{0%,100%{transform:translate(-50%,-50%) scale(1);opacity:.4}50%{transform:translate(-50%,-50%) scale(1.3);opacity:.7}}
+@keyframes rRot{to{transform:translate(-50%,-50%) rotate(360deg)}}
+.hero-t{font-family:var(--title);font-size:clamp(2.5rem,10vw,6.5rem);letter-spacing:12px;margin-bottom:8px;line-height:1}
+.t-letter{display:inline-block;color:var(--white);text-shadow:0 0 10px rgba(220,38,38,.5),0 0 40px rgba(220,38,38,.2);animation:tFlick 5s ease-in-out infinite;animation-delay:calc(var(--i)*.15s);transition:var(--tr);cursor:default}
+.t-letter:hover{color:var(--red);text-shadow:0 0 20px rgba(255,0,0,.8),0 0 60px rgba(255,0,0,.4);transform:translateY(-8px) scale(1.15)}
+@keyframes tFlick{0%,100%{opacity:1}89%{opacity:.6}90%{opacity:1}92%{opacity:.7}93%{opacity:1}}
+.hero-ver{font-family:var(--pixel);font-size:clamp(.4rem,2vw,.65rem);color:var(--red);letter-spacing:4px;margin-bottom:18px;animation:vBlink 2s ease-in-out infinite;text-transform:uppercase}
+@keyframes vBlink{0%,100%{opacity:1}50%{opacity:.4}}
+.hero-tag{font-size:clamp(.85rem,2.5vw,1.1rem);color:var(--dim);max-width:550px;margin:0 auto 35px;line-height:1.8;font-weight:300}
+.hero-btns{display:flex;gap:16px;justify-content:center;flex-wrap:wrap}
+.btn{display:inline-flex;align-items:center;gap:8px;padding:14px 32px;border-radius:6px;font-size:.85rem;font-weight:700;letter-spacing:2px;text-transform:uppercase;transition:var(--tr);position:relative;overflow:hidden;cursor:pointer;border:2px solid transparent}
+.btn::before{content:'';position:absolute;top:0;left:-100%;width:100%;height:100%;background:linear-gradient(90deg,transparent,rgba(255,255,255,.12),transparent);transition:left .5s}
+.btn:hover::before{left:100%}
+.btn-p{background:linear-gradient(135deg,var(--red),var(--red-dark));color:#fff;border-color:var(--red);box-shadow:0 0 15px rgba(220,38,38,.3)}
+.btn-p:hover{box-shadow:0 0 30px rgba(220,38,38,.5);transform:translateY(-3px)}
+.btn-s{background:transparent;color:var(--white);border-color:var(--gray)}
+.btn-s:hover{border-color:var(--red);color:var(--red-light);transform:translateY(-3px)}
+.btn svg{width:16px;height:16px}
+
+/* Scroll indicator */
+.scroll-ind{position:absolute;bottom:35px;left:50%;transform:translateX(-50%);display:flex;flex-direction:column;align-items:center;gap:8px;animation:sBounce 2s ease-in-out infinite;z-index:10;opacity:.6}
+.scroll-ind span{font-size:.6rem;letter-spacing:3px;text-transform:uppercase;color:var(--dim)}
+.scroll-mouse{width:22px;height:36px;border:2px solid var(--dim);border-radius:11px;display:flex;justify-content:center;padding-top:7px}
+.scroll-wheel{width:3px;height:7px;background:var(--red);border-radius:2px;animation:sWheel 2s ease-in-out infinite}
+@keyframes sBounce{0%,100%{transform:translateX(-50%) translateY(0)}50%{transform:translateX(-50%) translateY(8px)}}
+@keyframes sWheel{0%{transform:translateY(0);opacity:1}100%{transform:translateY(12px);opacity:0}}
+
+/* Section common */
+.section{padding:100px 0;position:relative}
+.sec-h{text-align:center;margin-bottom:60px}
+.sec-t{font-family:var(--title);font-size:clamp(1.8rem,5vw,3rem);letter-spacing:4px;margin-bottom:12px;display:flex;align-items:center;justify-content:center;gap:15px}
+.t-dec{color:var(--red);font-size:.8em;opacity:.5;transition:var(--tr)}
+.sec-h:hover .t-dec{opacity:1}
+.t-line{width:70px;height:3px;background:linear-gradient(90deg,transparent,var(--red),transparent);margin:0 auto;border-radius:2px;box-shadow:0 0 12px rgba(220,38,38,.4);position:relative}
+.t-line::before,.t-line::after{content:'';position:absolute;top:50%;width:5px;height:5px;background:var(--red);border-radius:50%;transform:translateY(-50%)}
+.t-line::before{left:-2px}.t-line::after{right:-2px}
+.sec-sub{color:var(--dim);font-size:.9rem;margin-top:15px;letter-spacing:1px;font-weight:300}
+
+/* Countdown */
+.cd-sec{padding:70px 0;background:linear-gradient(180deg,var(--bg),rgba(220,38,38,.02),var(--bg));position:relative}
+.cd-wrap{text-align:center;position:relative;z-index:2}
+.cd-label{font-family:var(--title);font-size:clamp(1.1rem,3vw,1.6rem);letter-spacing:3px;margin-bottom:8px}
+.cd-date{font-size:.8rem;color:var(--dim);letter-spacing:2px;margin-bottom:30px;text-transform:uppercase}
+.cd-grid{display:flex;justify-content:center;gap:16px;flex-wrap:wrap}
+.cd-item{background:var(--card);border:1px solid rgba(220,38,38,.2);border-radius:14px;padding:22px 20px;min-width:110px;transition:var(--tr);position:relative;overflow:hidden}
+.cd-item::before{content:'';position:absolute;top:0;left:0;width:100%;height:3px;background:linear-gradient(90deg,transparent,var(--red),transparent);opacity:.4}
+.cd-item:hover{border-color:rgba(220,38,38,.5);transform:translateY(-5px)}
+.cd-num{font-family:var(--pixel);font-size:clamp(1.3rem,4vw,2.2rem);color:var(--red);text-shadow:0 0 12px rgba(220,38,38,.4);display:block;margin-bottom:6px;line-height:1}
+.cd-unit{font-size:.65rem;color:var(--dim);text-transform:uppercase;letter-spacing:3px;font-weight:600}
+
+/* Story */
+.about{background:radial-gradient(ellipse at 20% 50%,rgba(220,38,38,.04) 0%,transparent 50%),var(--bg)}
+.story-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:25px;margin-bottom:40px}
+.story-card{background:var(--card);border:1px solid rgba(220,38,38,.1);border-radius:14px;padding:35px 25px;transition:var(--tr);position:relative;overflow:hidden}
+.story-card::before{content:'';position:absolute;top:0;left:0;width:100%;height:3px;background:linear-gradient(90deg,transparent,var(--red),transparent);opacity:0;transition:var(--tr)}
+.story-card:hover{transform:translateY(-6px);border-color:rgba(220,38,38,.3)}
+.story-card:hover::before{opacity:1}
+.s-icon{width:45px;height:45px;margin-bottom:16px;color:var(--red);transition:var(--tr)}
+.story-card:hover .s-icon{transform:scale(1.1)}
+.s-icon svg{width:100%;height:100%}
+.story-card h3{font-family:var(--title);font-size:1.4rem;letter-spacing:2px;margin-bottom:12px}
+.story-card p{color:var(--dim);line-height:1.8;font-size:.9rem}
+.story-card p strong{color:var(--red-light)}
+.story-quote{text-align:center;padding:35px;position:relative}
+.story-quote blockquote{font-size:clamp(.9rem,2.5vw,1.2rem);color:var(--dim);font-style:italic;line-height:2;max-width:650px;margin:0 auto}
+.q-mark{font-size:2.5rem;color:var(--red);font-style:normal;line-height:0;vertical-align:middle;opacity:.4}
+
+/* Dev Progress */
+.dev-progress{background:radial-gradient(ellipse at 60% 40%,rgba(220,38,38,.04) 0%,transparent 50%),var(--bg2)}
+.progress-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:20px;max-width:800px;margin:0 auto}
+.progress-item{background:var(--card);border:1px solid rgba(220,38,38,.12);border-radius:14px;padding:25px;transition:var(--tr)}
+.progress-item:hover{border-color:rgba(220,38,38,.3);transform:translateY(-3px)}
+.progress-label{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}
+.progress-label h4{font-size:.9rem;color:var(--white);font-weight:600}
+.progress-pct{font-family:var(--pixel);font-size:.6rem;color:var(--red)}
+.progress-bar{width:100%;height:8px;background:var(--card2);border-radius:4px;overflow:hidden;position:relative}
+.progress-fill{height:100%;border-radius:4px;transition:width 1.5s var(--ease);width:0%;position:relative}
+.progress-fill::after{content:'';position:absolute;right:0;top:0;width:20px;height:100%;background:linear-gradient(90deg,transparent,rgba(255,255,255,.3));animation:pShine 2s infinite}
+@keyframes pShine{0%{opacity:0}50%{opacity:1}100%{opacity:0}}
+.pf-red{background:linear-gradient(90deg,var(--red-dark),var(--red))}
+.pf-green{background:linear-gradient(90deg,#166534,var(--green))}
+.pf-blue{background:linear-gradient(90deg,#1e40af,var(--blue))}
+.pf-yellow{background:linear-gradient(90deg,#854d0e,var(--yellow))}
+.pf-purple{background:linear-gradient(90deg,#581c87,var(--purple))}
+.progress-desc{font-size:.75rem;color:var(--dim);margin-top:10px;line-height:1.5}
+
+/* Abilities */
+.abilities{background:radial-gradient(ellipse at 50% 50%,rgba(220,38,38,.05) 0%,transparent 50%),var(--bg)}
+.abilities-tabs{display:flex;justify-content:center;gap:12px;margin-bottom:40px;flex-wrap:wrap}
+.ab-tab{padding:10px 24px;border-radius:10px;background:var(--card);border:1px solid rgba(220,38,38,.15);color:var(--dim);font-size:.8rem;font-weight:600;letter-spacing:1px;text-transform:uppercase;cursor:pointer;transition:var(--tr)}
+.ab-tab:hover{border-color:rgba(220,38,38,.4);color:var(--white)}
+.ab-tab.active{background:rgba(220,38,38,.15);border-color:var(--red);color:var(--red-light)}
+.ab-tab.killer-tab{border-left:3px solid var(--red)}
+.ab-tab.survivor-tab{border-left:3px solid var(--green)}
+.ab-content{display:none}
+.ab-content.active{display:block;animation:fadeIn .4s ease}
+@keyframes fadeIn{from{opacity:0;transform:translateY(15px)}to{opacity:1;transform:translateY(0)}}
+
+.ab-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:18px}
+.ab-card{background:var(--card);border:1px solid rgba(220,38,38,.12);border-radius:14px;padding:22px;transition:var(--tr);position:relative;overflow:hidden}
+.ab-card:hover{border-color:rgba(220,38,38,.35);transform:translateY(-4px)}
+.ab-card::before{content:'';position:absolute;top:0;left:0;width:3px;height:100%;border-radius:3px 0 0 3px}
+.ab-card.attack::before{background:var(--red)}
+.ab-card.projectile::before{background:var(--blue)}
+.ab-card.dash::before{background:var(--purple)}
+.ab-card.ultimate::before{background:linear-gradient(180deg,var(--yellow),var(--red))}
+.ab-card.heal::before{background:var(--green)}
+.ab-card.passive::before{background:var(--dim)}
+.ab-card.scream::before{background:#f97316}
+.ab-card.buff::before{background:var(--blue)}
+.ab-card.vision::before{background:var(--yellow)}
+
+.ab-header{display:flex;align-items:center;gap:12px;margin-bottom:12px}
+.ab-key{min-width:38px;height:38px;border-radius:8px;background:var(--card2);border:1px solid rgba(220,38,38,.2);display:flex;align-items:center;justify-content:center;font-family:var(--pixel);font-size:.5rem;color:var(--red);font-weight:700}
+.ab-name{font-family:var(--title);font-size:1.2rem;letter-spacing:1px;color:var(--white)}
+.ab-type{font-size:.6rem;color:var(--dim);letter-spacing:1px;text-transform:uppercase;margin-top:2px}
+.ab-stats{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px}
+.ab-stat{display:flex;align-items:center;gap:6px;font-size:.72rem;color:var(--dim)}
+.ab-stat .val{color:var(--white);font-weight:600}
+.ab-stat .val.dmg{color:var(--red-light)}
+.ab-stat .val.cd{color:var(--blue)}
+.ab-stat .val.heal{color:var(--green)}
+.ab-effect{padding:8px 12px;background:rgba(220,38,38,.04);border:1px solid rgba(220,38,38,.08);border-radius:8px;font-size:.7rem;color:var(--dim);line-height:1.5}
+.ab-effect strong{color:var(--red-light);font-weight:600}
+.ab-passive-badge{display:inline-flex;align-items:center;gap:5px;padding:3px 10px;border-radius:12px;font-size:.55rem;font-weight:700;letter-spacing:1px;text-transform:uppercase;margin-bottom:10px}
+.ab-passive-badge.passive-type{background:rgba(163,163,163,.1);color:var(--dim);border:1px solid rgba(163,163,163,.2)}
+.ab-passive-badge.ult-type{background:rgba(234,179,8,.1);color:var(--yellow);border:1px solid rgba(234,179,8,.25)}
+
+/* Characters with heartbeat */
+.characters{background:radial-gradient(ellipse at 80% 20%,rgba(220,38,38,.04) 0%,transparent 50%),linear-gradient(180deg,var(--bg),var(--bg2))}
+.chars-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:25px;margin-bottom:50px}
+.char-card{background:var(--card);border:1px solid rgba(220,38,38,.1);border-radius:16px;padding:35px 25px;text-align:center;transition:var(--tr);position:relative;overflow:hidden}
+.char-card:hover{transform:translateY(-8px);border-color:rgba(220,38,38,.3)}
+.char-avatar{width:85px;height:85px;margin:0 auto 20px}
+.avatar-ph{width:100%;height:100%;border-radius:50%;background:linear-gradient(135deg,var(--red-dark),var(--card2));display:flex;align-items:center;justify-content:center;border:2px solid rgba(220,38,38,.3);transition:var(--tr)}
+.char-card:hover .avatar-ph{border-color:var(--red);box-shadow:0 0 30px rgba(220,38,38,.3)}
+.avatar-ph svg{width:32px;height:32px;color:var(--white);opacity:.6}
+.char-name{font-family:var(--title);font-size:1.4rem;letter-spacing:2px;margin-bottom:6px}
+.char-role{font-size:.72rem;color:var(--red-light);letter-spacing:2px;text-transform:uppercase;margin-bottom:12px;font-weight:600;display:inline-block}
+.char-desc{color:var(--dim);font-size:.85rem;line-height:1.7}
+.char-status{display:flex;align-items:center;justify-content:center;gap:6px;margin-top:18px;font-size:.65rem;color:var(--green);text-transform:uppercase;letter-spacing:2px;font-weight:600}
+/* Heartbeat pulse */
+.heartbeat{width:8px;height:8px;background:var(--green);border-radius:50%;position:relative;animation:heartbeat 1.2s ease-in-out infinite}
+.heartbeat::before{content:'';position:absolute;inset:-4px;border-radius:50%;border:2px solid var(--green);opacity:0;animation:hbRing 1.2s ease-in-out infinite}
+@keyframes heartbeat{0%,100%{transform:scale(1)}15%{transform:scale(1.4)}30%{transform:scale(1)}45%{transform:scale(1.2)}60%{transform:scale(1)}}
+@keyframes hbRing{0%{transform:scale(.5);opacity:.8}100%{transform:scale(2);opacity:0}}
+
+/* Antagonist + glitch */
+.ant-sec{max-width:580px;margin:0 auto}
+.ant-card{background:linear-gradient(135deg,rgba(139,0,0,.18),var(--card));border:1px solid rgba(220,38,38,.3);border-radius:16px;padding:45px 35px;text-align:center;position:relative;overflow:hidden;transition:var(--tr)}
+.ant-card:hover{border-color:var(--red);transform:translateY(-5px)}
+.ant-glitch{position:absolute;inset:0;background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(220,38,38,.03) 2px,rgba(220,38,38,.03) 4px);pointer-events:none;animation:glScan 4s linear infinite}
+@keyframes glScan{0%{transform:translateY(-100%)}100%{transform:translateY(100%)}}
+.ant-c{position:relative;z-index:2}
+.ant-icon{width:65px;height:65px;margin:0 auto 16px;color:var(--red);animation:obsWatch 3s ease-in-out infinite}
+.ant-icon svg{width:100%;height:100%}
+@keyframes obsWatch{0%,100%{transform:scale(1);filter:drop-shadow(0 0 5px rgba(255,0,0,.3))}50%{transform:scale(1.1);filter:drop-shadow(0 0 15px rgba(255,0,0,.6))}}
+.ant-card h3{font-family:var(--title);font-size:2.2rem;letter-spacing:8px;color:var(--red);margin-bottom:8px;text-shadow:0 0 15px rgba(220,38,38,.5)}
+.ant-role{font-size:.65rem;color:var(--red-light);letter-spacing:3px;text-transform:uppercase;margin-bottom:16px;font-weight:600;display:block;opacity:.8}
+.ant-card p{color:var(--dim);line-height:1.8;font-size:.9rem}
+.ant-card.glitch-active{animation:obsGlitch .6s ease}
+@keyframes obsGlitch{5%{transform:translate(3px,-2px) skewX(2deg);filter:hue-rotate(90deg)}10%{transform:translate(-3px,1px)}15%{transform:translate(2px,-3px);filter:hue-rotate(0)}20%{filter:brightness(1.5)}25%{transform:none;filter:none}}
+
+/* Siren effect */
+.siren-overlay{position:fixed;inset:0;pointer-events:none;z-index:998;opacity:0;transition:opacity .5s;background:radial-gradient(ellipse at 50% 50%,rgba(220,38,38,.05),transparent 70%)}
+.siren-overlay.active{opacity:1;animation:sirenPulse 2s ease-in-out infinite}
+@keyframes sirenPulse{0%,100%{background:radial-gradient(ellipse at 50% 50%,rgba(220,38,38,.03),transparent 70%)}50%{background:radial-gradient(ellipse at 50% 50%,rgba(220,38,38,.08),transparent 70%)}}
+
+/* Killers */
+.killers{background:radial-gradient(ellipse at 30% 70%,rgba(220,38,38,.05) 0%,transparent 50%),var(--bg)}
+.killers-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:25px;max-width:850px;margin:0 auto}
+.k-card{background:var(--card);border:1px solid rgba(220,38,38,.2);border-radius:16px;padding:40px 30px;transition:var(--tr);position:relative;overflow:hidden}
+.k-card::after{content:'';position:absolute;bottom:0;left:0;width:100%;height:4px;background:linear-gradient(90deg,transparent,var(--red),transparent);opacity:0;transition:var(--tr)}
+.k-card:hover{transform:translateY(-8px);border-color:rgba(220,38,38,.5)}
+.k-card:hover::after{opacity:1}
+.k-avatar{width:95px;height:95px;margin:0 auto 20px}
+.k-av-in{width:100%;height:100%;border-radius:50%;display:flex;align-items:center;justify-content:center;border:3px solid;transition:var(--tr)}
+.k-card:hover .k-av-in{box-shadow:0 0 40px rgba(220,38,38,.4);transform:scale(1.05)}
+.k-av-in.dute{background:radial-gradient(circle,rgba(220,38,38,.3),rgba(139,0,0,.15));border-color:var(--red)}
+.k-av-in.zombie{background:radial-gradient(circle,rgba(34,139,34,.2),rgba(0,80,0,.15));border-color:#2d8a2d}
+.k-av-in svg{width:42px;height:42px;opacity:.8}
+.k-name{font-family:var(--title);font-size:2rem;letter-spacing:5px;text-align:center;margin-bottom:4px}
+.k-name.dn{color:var(--red);text-shadow:0 0 15px rgba(220,38,38,.5)}
+.k-name.zn{color:#2d8a2d;text-shadow:0 0 15px rgba(45,138,45,.5)}
+.k-sub{text-align:center;font-size:.7rem;color:var(--dim);letter-spacing:2px;text-transform:uppercase;margin-bottom:16px;font-weight:600}
+.k-tag{display:inline-block;padding:4px 12px;border-radius:12px;font-size:.58rem;letter-spacing:1px;text-transform:uppercase;font-weight:700;margin-bottom:14px}
+.k-tag.spirit{background:rgba(220,38,38,.1);color:var(--red-light);border:1px solid rgba(220,38,38,.2)}
+.k-tag.exp{background:rgba(34,139,34,.1);color:#4ade80;border:1px solid rgba(34,139,34,.2)}
+.k-lore{color:var(--dim);font-size:.85rem;line-height:1.7;text-align:center}
+.k-quote{margin-top:14px;padding:14px;background:rgba(220,38,38,.03);border-left:3px solid var(--red);border-radius:0 8px 8px 0;font-style:italic;color:var(--dim);font-size:.8rem;line-height:1.7;text-align:left}
+
+/* Poll */
+.poll{background:var(--bg2)}
+.poll-container{max-width:600px;margin:0 auto}
+.poll-card{background:var(--card);border:1px solid rgba(220,38,38,.15);border-radius:18px;padding:40px;text-align:center;position:relative;overflow:hidden}
+.poll-q{font-family:var(--title);font-size:1.5rem;letter-spacing:3px;margin-bottom:25px;color:var(--white)}
+.poll-options{display:flex;flex-direction:column;gap:12px}
+.poll-opt{display:flex;align-items:center;gap:15px;padding:16px 20px;background:var(--card2);border:1px solid rgba(220,38,38,.1);border-radius:12px;cursor:pointer;transition:var(--tr);position:relative;overflow:hidden}
+.poll-opt:hover{border-color:rgba(220,38,38,.4);transform:translateX(5px)}
+.poll-opt.voted{border-color:var(--red);cursor:default}
+.poll-opt-bar{position:absolute;left:0;top:0;height:100%;background:rgba(220,38,38,.08);border-radius:12px;transition:width 1s var(--ease);width:0%}
+.poll-opt-icon{font-size:1.5rem;position:relative;z-index:2}
+.poll-opt-name{font-weight:600;font-size:.9rem;position:relative;z-index:2;flex:1}
+.poll-opt-pct{font-family:var(--pixel);font-size:.6rem;color:var(--red);position:relative;z-index:2}
+.poll-total{margin-top:18px;font-size:.75rem;color:var(--dim);letter-spacing:1px}
+
+/* Wallpaper Generator */
+.wallpaper{background:var(--bg)}
+.wp-container{max-width:600px;margin:0 auto}
+.wp-card{background:var(--card);border:1px solid rgba(220,38,38,.15);border-radius:18px;padding:40px;text-align:center}
+.wp-preview{width:100%;aspect-ratio:16/9;border-radius:12px;margin-bottom:25px;overflow:hidden;position:relative;background:var(--bg);border:1px solid rgba(220,38,38,.1)}
+.wp-preview canvas{width:100%;height:100%}
+.wp-controls{display:flex;gap:12px;justify-content:center;flex-wrap:wrap;margin-bottom:15px}
+.wp-color{width:36px;height:36px;border-radius:50%;border:2px solid var(--gray);cursor:pointer;transition:var(--tr)}
+.wp-color:hover,.wp-color.active{border-color:var(--white);transform:scale(1.15)}
+.wp-color.c-red{background:var(--red)}
+.wp-color.c-dark{background:#1a0000}
+.wp-color.c-blue{background:#1e3a5f}
+.wp-color.c-purple{background:#3b0764}
+.wp-color.c-green{background:#052e16}
+.wp-dl-btn{padding:14px 30px;background:linear-gradient(135deg,var(--red),var(--red-dark));border:none;border-radius:10px;color:#fff;font-size:.85rem;font-weight:700;letter-spacing:2px;text-transform:uppercase;cursor:pointer;transition:var(--tr)}
+.wp-dl-btn:hover{box-shadow:0 0 25px rgba(220,38,38,.4);transform:translateY(-2px)}
+
+/* Music */
+.music{background:radial-gradient(ellipse at 70% 30%,rgba(220,38,38,.04) 0%,transparent 50%),linear-gradient(180deg,var(--bg),var(--bg2))}
+.mp-c{max-width:650px;margin:0 auto}
+.mp{background:var(--card);border:1px solid rgba(220,38,38,.2);border-radius:20px;padding:40px;position:relative;overflow:hidden;transition:var(--tr)}
+.mp:hover{border-color:rgba(220,38,38,.4)}
+.mp-vis{display:flex;align-items:flex-end;justify-content:center;gap:3px;height:55px;margin-bottom:25px;position:relative;z-index:2}
+.mp-bar{width:5px;background:linear-gradient(to top,var(--red-dark),var(--red),var(--red-light));border-radius:3px;height:8px}
+.mp-bar.active{animation:mBD .5s ease-in-out infinite alternate}
+@keyframes mBD{0%{height:8px;opacity:.5}100%{height:var(--bh,45px);opacity:1}}
+.mp-bar:nth-child(1){--bh:28px;animation-delay:0s}.mp-bar:nth-child(2){--bh:45px;animation-delay:.1s}.mp-bar:nth-child(3){--bh:32px;animation-delay:.2s}.mp-bar:nth-child(4){--bh:50px;animation-delay:.05s}.mp-bar:nth-child(5){--bh:22px;animation-delay:.15s}.mp-bar:nth-child(6){--bh:40px;animation-delay:.25s}.mp-bar:nth-child(7){--bh:55px;animation-delay:.08s}.mp-bar:nth-child(8){--bh:35px;animation-delay:.18s}.mp-bar:nth-child(9){--bh:45px;animation-delay:.12s}.mp-bar:nth-child(10){--bh:28px;animation-delay:.22s}.mp-bar:nth-child(11){--bh:50px;animation-delay:.03s}.mp-bar:nth-child(12){--bh:32px;animation-delay:.13s}.mp-bar:nth-child(13){--bh:40px;animation-delay:.07s}.mp-bar:nth-child(14){--bh:22px;animation-delay:.17s}.mp-bar:nth-child(15){--bh:45px;animation-delay:.02s}.mp-bar:nth-child(16){--bh:35px;animation-delay:.2s}.mp-bar:nth-child(17){--bh:50px;animation-delay:.09s}.mp-bar:nth-child(18){--bh:28px;animation-delay:.14s}.mp-bar:nth-child(19){--bh:40px;animation-delay:.06s}.mp-bar:nth-child(20){--bh:32px;animation-delay:.16s}
+.mp-name{font-family:var(--title);font-size:1.4rem;letter-spacing:3px;text-align:center;margin-bottom:4px;position:relative;z-index:2}
+.mp-desc{text-align:center;font-size:.8rem;color:var(--dim);margin-bottom:24px;position:relative;z-index:2}
+.mp-prog-c{margin-bottom:18px;position:relative;z-index:2}
+.mp-prog{width:100%;height:5px;background:var(--card2);border-radius:3px;cursor:pointer;position:relative}
+.mp-prog:hover{height:7px}
+.mp-fill{height:100%;background:linear-gradient(90deg,var(--red-dark),var(--red),var(--red-light));border-radius:3px;width:0%;transition:width .1s linear}
+.mp-time{display:flex;justify-content:space-between;font-size:.65rem;color:var(--dim);margin-top:8px}
+.mp-ctrl{display:flex;align-items:center;justify-content:center;gap:24px;position:relative;z-index:2}
+.m-btn{background:none;border:none;color:var(--white);cursor:pointer;transition:var(--tr);display:flex;align-items:center;justify-content:center;padding:6px;border-radius:50%}
+.m-btn:hover{color:var(--red);transform:scale(1.2)}
+.m-btn svg{width:22px;height:22px}
+.m-play{width:56px;height:56px;border-radius:50%;background:linear-gradient(135deg,var(--red),var(--red-dark));border:none;color:#fff;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:var(--tr);box-shadow:0 0 20px rgba(220,38,38,.3)}
+.m-play:hover{box-shadow:0 0 35px rgba(220,38,38,.5);transform:scale(1.1)}
+.m-play svg{width:24px;height:24px}
+.vol-c{display:flex;align-items:center;gap:10px;justify-content:center;margin-top:18px;position:relative;z-index:2}
+.vol-c svg{width:18px;height:18px;color:var(--dim)}
+.vol-sl{-webkit-appearance:none;appearance:none;width:110px;height:4px;background:var(--card2);border-radius:2px;outline:none;cursor:pointer}
+.vol-sl::-webkit-slider-thumb{-webkit-appearance:none;width:14px;height:14px;border-radius:50%;background:var(--red);cursor:pointer;box-shadow:0 0 8px rgba(220,38,38,.5)}
+
+/* Links */
+.links{background:radial-gradient(ellipse at 50% 100%,rgba(220,38,38,.06) 0%,transparent 50%),var(--bg)}
+.links-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:20px}
+.l-card{background:var(--card);border:1px solid rgba(220,38,38,.1);border-radius:16px;padding:30px 25px;display:flex;align-items:center;gap:16px;transition:var(--tr);position:relative;overflow:hidden}
+.l-card:hover{transform:translateY(-5px) translateX(3px);border-color:rgba(220,38,38,.4)}
+.l-icon{width:50px;height:50px;min-width:50px;border-radius:14px;display:flex;align-items:center;justify-content:center;transition:var(--tr)}
+.l-icon svg{width:24px;height:24px}
+.l-icon.roblox{background:linear-gradient(135deg,#e2231a,#a01a13);color:#fff}
+.l-icon.discord{background:linear-gradient(135deg,#5865F2,#4752C4);color:#fff}
+.l-icon.community{background:linear-gradient(135deg,#e2231a,#a01a13);color:#fff}
+.l-icon.telegram{background:linear-gradient(135deg,#2AABEE,#229ED9);color:#fff}
+.l-card:hover .l-icon{transform:scale(1.1) rotate(-3deg)}
+.l-card h3{font-size:1rem;margin-bottom:4px;font-weight:700}
+.l-card p{font-size:.78rem;color:var(--dim)}
+.l-arrow{margin-left:auto;font-size:1.3rem;color:var(--red);transition:var(--tr);opacity:0;transform:translateX(-8px)}
+.l-card:hover .l-arrow{opacity:1;transform:translateX(0)}
+
+/* Footer */
+.footer{position:relative;padding:60px 0 30px;background:var(--bg2);border-top:1px solid rgba(220,38,38,.08)}
+.f-blood{position:absolute;top:0;left:0;width:100%;height:3px;background:linear-gradient(90deg,transparent,var(--red-blood),var(--red),var(--red-blood),transparent);opacity:.4}
+.f-c{text-align:center}
+.f-logo{display:flex;align-items:center;justify-content:center;gap:10px;margin-bottom:14px}
+.f-logo img{width:36px;height:36px;object-fit:contain;filter:drop-shadow(0 0 6px rgba(220,38,38,.3))}
+.f-logo span{font-family:var(--title);font-size:1.3rem;letter-spacing:5px}
+.f-text{color:var(--dim);font-size:.85rem;margin-bottom:4px}
+.f-dev{color:var(--dim);font-size:.8rem;margin-bottom:20px}
+.f-dev strong{color:var(--red-light)}
+.f-div{width:50px;height:1px;background:linear-gradient(90deg,transparent,var(--gray),transparent);margin:0 auto 16px}
+.f-copy{font-size:.65rem;color:var(--gray);letter-spacing:1px}
+
+/* Animations */
+[data-a]{opacity:0;transition:all .8s var(--ease)}
+[data-a="fu"]{transform:translateY(40px)}
+[data-a="fd"]{transform:translateY(-40px)}
+[data-a="fr"]{transform:translateX(-40px)}
+[data-a="fl"]{transform:translateX(40px)}
+[data-a="fs"]{transform:scale(.92)}
+[data-a].anim{opacity:1;transform:translate(0) scale(1)}
+
+/* Responsive */
+@media(max-width:1024px){
+    .story-grid{grid-template-columns:1fr 1fr}
+    .progress-grid{grid-template-columns:1fr}
+}
+@media(max-width:992px){
+    .story-grid,.chars-grid,.ab-grid{grid-template-columns:1fr;gap:16px}
+    .killers-grid,.links-grid{grid-template-columns:1fr}
+    .wall-note{display:none}
+}
+@media(max-width:768px){
+    .nav-links{display:none}.nav-toggle{display:flex}
+    .hero-t{letter-spacing:6px}.hero-logo{width:110px;height:110px}
+    .section{padding:70px 0}.sec-t{gap:8px;font-size:clamp(1.4rem,5vw,2.2rem)}
+    .scroll-ind{display:none}
+    .cd-item{min-width:85px;padding:16px 14px}
+    .abilities-tabs{gap:8px}
+    .ab-tab{padding:8px 16px;font-size:.7rem}
+    .poll-card,.wp-card{padding:25px}
+}
+@media(max-width:480px){
+    .hero-btns{flex-direction:column;align-items:center}
+    .btn{width:100%;max-width:260px;justify-content:center}
+    .hero-t{letter-spacing:4px}.hero-logo{width:95px;height:95px}
+    .l-card{flex-direction:column;text-align:center;gap:12px}
+    .l-arrow{display:none}
+    .section{padding:50px 0}.sec-h{margin-bottom:40px}
+    .ab-stats{grid-template-columns:1fr}
+    .cd-grid{gap:10px}
+    .cd-num{font-size:1.1rem}
+}
+
+/* Reduce motion */
+@media(prefers-reduced-motion:reduce){
+    *,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}
+}
+</style>
+</head>
+<body>
+    <div class="scroll-progress" id="scrollProg"></div>
+    <button class="back-to-top" id="backTop"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 15l-6-6-6 6"/></svg></button>
+    <div class="cursor-glow" id="cursorGlow"></div>
+    <div class="particles" id="particles"></div>
+    <div class="fog"><div class="fog-l fog-1"></div><div class="fog-l fog-2"></div><div class="fog-l fog-3"></div></div>
+    <div class="siren-overlay" id="sirenOverlay"></div>
+
+    <!-- Wall Notes -->
+    <div class="wall-note note-1" id="wn1" data-i18n="note.1">Help us... they're watching...</div>
+    <div class="wall-note note-2" id="wn2" data-i18n="note.2">Don't trust the Observer</div>
+    <div class="wall-note note-3" id="wn3" data-i18n="note.3">Experiment #14 escaped...</div>
+
+    <!-- Navbar -->
+    <nav class="navbar" id="navbar">
+        <div class="nav-c">
+            <a href="#hero" class="nav-logo">
+                <img src="ReletedLogo.png" alt="Releted">
+                <span>RELETED</span>
+            </a>
+            <ul class="nav-links">
+                <li><a href="#hero" class="nav-link active" data-i18n="nav.home">Home</a></li>
+                <li><a href="#about" class="nav-link" data-i18n="nav.story">Story</a></li>
+                <li><a href="#devprogress" class="nav-link" data-i18n="nav.progress">Progress</a></li>
+                <li><a href="#abilities" class="nav-link" data-i18n="nav.abilities">Abilities</a></li>
+                <li><a href="#characters" class="nav-link" data-i18n="nav.characters">Characters</a></li>
+                <li><a href="#killers" class="nav-link" data-i18n="nav.killers">Killers</a></li>
+                <li><a href="#poll" class="nav-link" data-i18n="nav.poll">Poll</a></li>
+                <li><a href="#music" class="nav-link" data-i18n="nav.music">Music</a></li>
+                <li><a href="#links" class="nav-link" data-i18n="nav.links">Links</a></li>
+                <li>
+                    <div class="lang-sw">
+                        <button class="lang-btn" id="langBtn"><span id="langCur">EN</span><svg viewBox="0 0 24 24" fill="currentColor"><path d="M7 10l5 5 5-5z"/></svg></button>
+                        <div class="lang-dd" id="langDD">
+                            <div class="lang-opt active" data-lang="en"><span>🇬🇧</span> English</div>
+                            <div class="lang-opt" data-lang="ua"><span>🇺🇦</span> Українська</div>
+                            <div class="lang-opt" data-lang="ru"><span>🇷🇺</span> Русский</div>
+                            <div class="lang-opt" data-lang="pl"><span>🇵🇱</span> Polski</div>
+                            <div class="lang-opt" data-lang="de"><span>🇩🇪</span> Deutsch</div>
+                        </div>
+                    </div>
+                </li>
+            </ul>
+            <button class="nav-toggle" id="navTog" aria-label="Menu"><span></span><span></span><span></span></button>
+        </div>
+    </nav>
+
+    <!-- Mobile Menu -->
+    <div class="mob-menu" id="mobMenu">
+        <ul class="mob-links">
+            <li><a href="#hero" class="mob-link" data-i18n="nav.home">Home</a></li>
+            <li><a href="#about" class="mob-link" data-i18n="nav.story">Story</a></li>
+            <li><a href="#devprogress" class="mob-link" data-i18n="nav.progress">Progress</a></li>
+            <li><a href="#abilities" class="mob-link" data-i18n="nav.abilities">Abilities</a></li>
+            <li><a href="#characters" class="mob-link" data-i18n="nav.characters">Characters</a></li>
+            <li><a href="#killers" class="mob-link" data-i18n="nav.killers">Killers</a></li>
+            <li><a href="#poll" class="mob-link" data-i18n="nav.poll">Poll</a></li>
+            <li><a href="#wallpaper" class="mob-link" data-i18n="nav.wallpaper">Wallpaper</a></li>
+            <li><a href="#music" class="mob-link" data-i18n="nav.music">Music</a></li>
+            <li><a href="#links" class="mob-link" data-i18n="nav.links">Links</a></li>
+        </ul>
+    </div>
+
+    <!-- Hero -->
+    <section class="hero" id="hero">
+        <div class="hero-fx">
+            <div class="drip d1"></div><div class="drip d2"></div><div class="drip d3"></div><div class="drip d4"></div><div class="drip d5"></div>
+        </div>
+        <div class="hero-c">
+            <div class="logo-wrap" data-a="fd">
+                <img src="ReletedLogo.png" alt="Releted Logo" class="hero-logo">
+                <div class="logo-glow"></div>
+                <div class="logo-ring"></div>
+            </div>
+            <h1 class="hero-t" data-a="fu">
+                <span class="t-letter" style="--i:0">R</span><span class="t-letter" style="--i:1">E</span><span class="t-letter" style="--i:2">L</span><span class="t-letter" style="--i:3">E</span><span class="t-letter" style="--i:4">T</span><span class="t-letter" style="--i:5">E</span><span class="t-letter" style="--i:6">D</span>
+            </h1>
+            <p class="hero-ver" data-a="fu" data-i18n="hero.ver">VERSION: PROTOTYPE</p>
+            <p class="hero-tag" data-a="fu" data-i18n="hero.tag">Experiments have begun. Survival is not guaranteed.</p>
+            <div class="hero-btns" data-a="fu">
+                <a href="https://www.roblox.com/games/134447510894020/Releted" target="_blank" class="btn btn-p">
+                    <svg viewBox="0 0 24 24" fill="currentColor"><path d="M5 3l14 9-14 9V3z"/></svg>
+                    <span data-i18n="hero.play">Play</span>
+                </a>
+                <a href="#about" class="btn btn-s">
+                    <span data-i18n="hero.learn">Learn More</span>
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M19 12l-7 7-7-7"/></svg>
+                </a>
+            </div>
+        </div>
+        <div class="scroll-ind">
+            <div class="scroll-mouse"><div class="scroll-wheel"></div></div>
+            <span data-i18n="hero.scroll">Scroll Down</span>
+        </div>
+    </section>
+
+    <!-- Countdown -->
+    <section class="cd-sec" id="countdown">
+        <div class="container">
+            <div class="cd-wrap" data-a="fu">
+                <div class="cd-label" data-i18n="cd.label">Time Until Release</div>
+                <div class="cd-date" data-i18n="cd.date">July 6, 2026</div>
+                <div class="cd-grid" id="cdGrid">
+                    <div class="cd-item"><span class="cd-num" id="cdD">000</span><span class="cd-unit" data-i18n="cd.days">days</span></div>
+                    <div class="cd-item"><span class="cd-num" id="cdH">00</span><span class="cd-unit" data-i18n="cd.hours">hours</span></div>
+                    <div class="cd-item"><span class="cd-num" id="cdM">00</span><span class="cd-unit" data-i18n="cd.min">minutes</span></div>
+                    <div class="cd-item"><span class="cd-num" id="cdS">00</span><span class="cd-unit" data-i18n="cd.sec">seconds</span></div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Story -->
+    <section class="section about" id="about">
+        <div class="container">
+            <div class="sec-h" data-a="fu">
+                <h2 class="sec-t"><span class="t-dec">☠</span><span data-i18n="about.t">Story</span><span class="t-dec">☠</span></h2>
+                <div class="t-line"></div>
+            </div>
+            <div class="story-grid">
+                <div class="story-card" data-a="fr">
+                    <div class="s-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg></div>
+                    <h3 data-i18n="about.c1t">Disappearances</h3>
+                    <p data-i18n="about.c1p">People are disappearing in a small town. Nobody knows where they go or who is behind it. Fear and panic grip the streets.</p>
+                </div>
+                <div class="story-card" data-a="fu">
+                    <div class="s-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg></div>
+                    <h3>Observer</h3>
+                    <p data-i18n="about.c2p">Behind everything stands a mysterious scientist named <strong>Observer</strong>. He kidnaps people and conducts dangerous experiments, turning some into monsters.</p>
+                </div>
+                <div class="story-card" data-a="fl">
+                    <div class="s-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M13 10V3L4 14h7v7l9-11h-7z"/></svg></div>
+                    <h3 data-i18n="about.c3t">Survival</h3>
+                    <p data-i18n="about.c3p">Others are forced to survive against these creatures in enclosed locations. A small group tries to escape before it's too late.</p>
+                </div>
+            </div>
+            <div class="story-quote" data-a="fu">
+                <blockquote><span class="q-mark">"</span><span data-i18n="about.q">A small group of survivors tries to understand what is happening and escape before it's too late...</span><span class="q-mark">"</span></blockquote>
+            </div>
+        </div>
+    </section>
+
+    <!-- Dev Progress -->
+    <section class="section dev-progress" id="devprogress">
+        <div class="container">
+            <div class="sec-h" data-a="fu">
+                <h2 class="sec-t"><span class="t-dec">📊</span><span data-i18n="prog.t">Development Progress</span><span class="t-dec">📊</span></h2>
+                <div class="t-line"></div>
+                <p class="sec-sub" data-i18n="prog.sub">Current state of development</p>
+            </div>
+            <div class="progress-grid">
+                <div class="progress-item" data-a="fu" data-d="0">
+                    <div class="progress-label">
+                        <h4 data-i18n="prog.killers">Killers</h4>
+                        <span class="progress-pct">40%</span>
+                    </div>
+                    <div class="progress-bar"><div class="progress-fill pf-red" data-pct="40"></div></div>
+                    <p class="progress-desc" data-i18n="prog.killers_d">2 of 5 planned killers implemented</p>
+                </div>
+                <div class="progress-item" data-a="fu" data-d="100">
+                    <div class="progress-label">
+                        <h4 data-i18n="prog.maps">Maps</h4>
+                        <span class="progress-pct">20%</span>
+                    </div>
+                    <div class="progress-bar"><div class="progress-fill pf-blue" data-pct="20"></div></div>
+                    <p class="progress-desc" data-i18n="prog.maps_d">1 of 5 planned maps completed</p>
+                </div>
+                <div class="progress-item" data-a="fu" data-d="200">
+                    <div class="progress-label">
+                        <h4 data-i18n="prog.abilities_p">Abilities System</h4>
+                        <span class="progress-pct">70%</span>
+                    </div>
+                    <div class="progress-bar"><div class="progress-fill pf-purple" data-pct="70"></div></div>
+                    <p class="progress-desc" data-i18n="prog.abilities_d">Core ability system with combos & ultimates</p>
+                </div>
+                <div class="progress-item" data-a="fu" data-d="300">
+                    <div class="progress-label">
+                        <h4 data-i18n="prog.survivors_p">Survivors</h4>
+                        <span class="progress-pct">60%</span>
+                    </div>
+                    <div class="progress-bar"><div class="progress-fill pf-green" data-pct="60"></div></div>
+                    <p class="progress-desc" data-i18n="prog.survivors_d">3 survivors with unique abilities</p>
+                </div>
+                <div class="progress-item" data-a="fu" data-d="400">
+                    <div class="progress-label">
+                        <h4 data-i18n="prog.ui">UI & Effects</h4>
+                        <span class="progress-pct">50%</span>
+                    </div>
+                    <div class="progress-bar"><div class="progress-fill pf-yellow" data-pct="50"></div></div>
+                    <p class="progress-desc" data-i18n="prog.ui_d">HUD, screamer effects, screen shakes</p>
+                </div>
+                <div class="progress-item" data-a="fu" data-d="500">
+                    <div class="progress-label">
+                        <h4 data-i18n="prog.sounds">Sound & Music</h4>
+                        <span class="progress-pct">35%</span>
+                    </div>
+                    <div class="progress-bar"><div class="progress-fill pf-red" data-pct="35"></div></div>
+                    <p class="progress-desc" data-i18n="prog.sounds_d">Ambient sounds, ability SFX, soundtrack</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Abilities -->
+    <section class="section abilities" id="abilities">
+        <div class="container">
+            <div class="sec-h" data-a="fu">
+                <h2 class="sec-t"><span class="t-dec">🗡</span><span data-i18n="ab.t">Abilities</span><span class="t-dec">🗡</span></h2>
+                <div class="t-line"></div>
+                <p class="sec-sub" data-i18n="ab.sub">Full ability breakdown for every character</p>
+            </div>
+            <div class="abilities-tabs" data-a="fu">
+                <button class="ab-tab killer-tab active" data-target="ab-dute">DUTE</button>
+                <button class="ab-tab killer-tab" data-target="ab-zombie">ZOMBIE</button>
+                <button class="ab-tab survivor-tab" data-target="ab-chipsik">CHIPSIK</button>
+                <button class="ab-tab survivor-tab" data-target="ab-disfaif">DISFAIF</button>
+                <button class="ab-tab survivor-tab" data-target="ab-alosha">ALOSHA1112</button>
+            </div>
+
+            <!-- DUTE -->
+            <div class="ab-content active" id="ab-dute">
+                <div class="ab-grid">
+                    <div class="ab-card attack" data-a="fu" data-d="0">
+                        <div class="ab-header"><div class="ab-key">LMB</div><div><div class="ab-name">Claw</div><div class="ab-type">Attack</div></div></div>
+                        <div class="ab-stats">
+                            <div class="ab-stat">💥 <span data-i18n="ab.dmg">Damage:</span> <span class="val dmg">20</span></div>
+                            <div class="ab-stat">⏱ <span data-i18n="ab.cd">Cooldown:</span> <span class="val cd">1.5s</span></div>
+                            <div class="ab-stat">🎯 <span data-i18n="ab.targets">Targets:</span> <span class="val">1</span></div>
+                            <div class="ab-stat">🩸 <span data-i18n="ab.vamp">Vampirism:</span> <span class="val">10%</span></div>
+                        </div>
+                        <div class="ab-effect" data-i18n="ab.dute_m1_fx">Knockback (H:40 V:20). Frame hitboxes with 15 frames. Charges ultimate by 4.</div>
+                    </div>
+                    <div class="ab-card dash" data-a="fu" data-d="100">
+                        <div class="ab-header"><div class="ab-key">Q</div><div><div class="ab-name">Shadow Rush</div><div class="ab-type">Dash Attack</div></div></div>
+                        <div class="ab-stats">
+                            <div class="ab-stat">💥 <span data-i18n="ab.dmg">Damage:</span> <span class="val dmg">10-35</span></div>
+                            <div class="ab-stat">⏱ <span data-i18n="ab.cd">Cooldown:</span> <span class="val cd">12s</span></div>
+                            <div class="ab-stat">🏃 <span data-i18n="ab.dist">Distance:</span> <span class="val">30</span></div>
+                            <div class="ab-stat">🩸 <span data-i18n="ab.vamp">Vampirism:</span> <span class="val">15%</span></div>
+                        </div>
+                        <div class="ab-effect" data-i18n="ab.dute_m2_fx">Damage scales with distance. At 30+ studs causes <strong>Bleed</strong> (5 dmg/s for 3s). Hits up to 3 targets. Knockback H:50 V:20.</div>
+                    </div>
+                    <div class="ab-card attack" data-a="fu" data-d="200">
+                        <div class="ab-header"><div class="ab-key">E</div><div><div class="ab-name">Shadow Leap</div><div class="ab-type">Controlled Jump</div></div></div>
+                        <div class="ab-stats">
+                            <div class="ab-stat">💥 <span data-i18n="ab.dmg">Damage:</span> <span class="val dmg">10</span></div>
+                            <div class="ab-stat">⏱ <span data-i18n="ab.cd">Cooldown:</span> <span class="val cd">8s</span></div>
+                            <div class="ab-stat">⬆ <span data-i18n="ab.height">Height:</span> <span class="val">40</span></div>
+                            <div class="ab-stat">🎯 <span data-i18n="ab.targets">Targets:</span> <span class="val">5</span></div>
+                        </div>
+                        <div class="ab-effect" data-i18n="ab.dute_m3_fx">Controllable mid-air jump. Landing creates AoE hitbox (12×8×12). Knockback on landing.</div>
+                    </div>
+                    <div class="ab-card scream" data-a="fu" data-d="300">
+                        <div class="ab-header"><div class="ab-key">R</div><div><div class="ab-name">Shadow Scream</div><div class="ab-type">Scream / Debuff</div></div></div>
+                        <div class="ab-stats">
+                            <div class="ab-stat">📡 <span data-i18n="ab.radius">Radius:</span> <span class="val">60</span></div>
+                            <div class="ab-stat">⏱ <span data-i18n="ab.cd">Cooldown:</span> <span class="val cd">15s</span></div>
+                            <div class="ab-stat">👁 <span data-i18n="ab.reveal">Highlight:</span> <span class="val">8s</span></div>
+                            <div class="ab-stat">🐌 <span data-i18n="ab.slow">Slow:</span> <span class="val">50% / 5s</span></div>
+                        </div>
+                        <div class="ab-effect" data-i18n="ab.dute_m4_fx">Reveals all survivors in 60 radius with red highlight for 8s. Applies <strong>Slow 50%</strong> for 5s and <strong>Root</strong> for 2s.</div>
+                    </div>
+                    <div class="ab-card ultimate" data-a="fu" data-d="400">
+                        <span class="ab-passive-badge ult-type">⚡ ULTIMATE</span>
+                        <div class="ab-header"><div class="ab-key">T</div><div><div class="ab-name">SHADOW STRIKE</div><div class="ab-type">Ultimate Screamer</div></div></div>
+                        <div class="ab-stats">
+                            <div class="ab-stat">💥 <span data-i18n="ab.dmg">Damage:</span> <span class="val dmg">50</span></div>
+                            <div class="ab-stat">🔋 <span data-i18n="ab.charge">Charge:</span> <span class="val">100</span></div>
+                            <div class="ab-stat">🩸 <span data-i18n="ab.vamp">Vampirism:</span> <span class="val">30%</span></div>
+                            <div class="ab-stat">😱 <span data-i18n="ab.fear">Fear:</span> <span class="val">3s</span></div>
+                        </div>
+                        <div class="ab-effect" data-i18n="ab.dute_ult_fx">Teleports to target. Screamer effect (2.5s, FOV 25, shake 6). Slow-motion 0.2× for 2s. Black flash. Applies <strong>Fear</strong> (speed ×0.3, abilities disabled for 3s). Charge: 40/kill, 4/hit.</div>
+                    </div>
+                    <div class="ab-card passive" data-a="fu" data-d="500">
+                        <span class="ab-passive-badge passive-type">🔄 PASSIVE</span>
+                        <div class="ab-header"><div class="ab-key">—</div><div><div class="ab-name">Marked Hunter</div><div class="ab-type">Passive</div></div></div>
+                        <div class="ab-effect" data-i18n="ab.dute_pass_fx">30% chance to <strong>Mark</strong> a target on hit. Marked targets take 25% more damage for 10s. Hitting marked targets causes <strong>Darkness</strong> screen effect for 10s.</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ZOMBIE -->
+            <div class="ab-content" id="ab-zombie">
+                <div class="ab-grid">
+                    <div class="ab-card attack" data-a="fu">
+                        <div class="ab-header"><div class="ab-key">LMB</div><div><div class="ab-name">Hit</div><div class="ab-type">Attack</div></div></div>
+                        <div class="ab-stats">
+                            <div class="ab-stat">💥 <span data-i18n="ab.dmg">Damage:</span> <span class="val dmg">20</span></div>
+                            <div class="ab-stat">⏱ <span data-i18n="ab.cd">Cooldown:</span> <span class="val cd">2s</span></div>
+                            <div class="ab-stat">🎯 <span data-i18n="ab.targets">Targets:</span> <span class="val">1</span></div>
+                            <div class="ab-stat">💨 <span data-i18n="ab.kb">Knockback:</span> <span class="val">H:60 V:30</span></div>
+                        </div>
+                        <div class="ab-effect" data-i18n="ab.zomb_m1_fx">25% chance to apply <strong>Bleed</strong> (5 dmg/s for 4s). 12 frame hitboxes. Ultimate charge +5.</div>
+                    </div>
+                    <div class="ab-card projectile" data-a="fu" data-d="100">
+                        <div class="ab-header"><div class="ab-key">Q</div><div><div class="ab-name">Throwing Stone</div><div class="ab-type">Projectile</div></div></div>
+                        <div class="ab-stats">
+                            <div class="ab-stat">💥 <span data-i18n="ab.dmg">Damage:</span> <span class="val dmg">30</span></div>
+                            <div class="ab-stat">⏱ <span data-i18n="ab.cd">Cooldown:</span> <span class="val cd">6s</span></div>
+                            <div class="ab-stat">🚀 <span data-i18n="ab.speed">Speed:</span> <span class="val">80</span></div>
+                            <div class="ab-stat">🌍 <span data-i18n="ab.gravity">Gravity:</span> <span class="val">50</span></div>
+                        </div>
+                        <div class="ab-effect" data-i18n="ab.zomb_m2_fx">Throwable projectile with gravity arc. 3s lifetime. Ultimate charge +8.</div>
+                    </div>
+                    <div class="ab-card attack" data-a="fu" data-d="200">
+                        <div class="ab-header"><div class="ab-key">E</div><div><div class="ab-name">Finger Grip</div><div class="ab-type">Attack + Pull</div></div></div>
+                        <div class="ab-stats">
+                            <div class="ab-stat">💥 <span data-i18n="ab.dmg">Damage:</span> <span class="val dmg">45</span></div>
+                            <div class="ab-stat">⏱ <span data-i18n="ab.cd">Cooldown:</span> <span class="val cd">10s</span></div>
+                            <div class="ab-stat">🧲 <span data-i18n="ab.pull">Pull:</span> <span class="val">100</span></div>
+                            <div class="ab-stat">⚡ <span data-i18n="ab.stun">Stun:</span> <span class="val">1s (100%)</span></div>
+                        </div>
+                        <div class="ab-effect" data-i18n="ab.zomb_m3_fx">Large AoE (16×10×16). Pulls target toward Zombie with 100 force. Guaranteed <strong>Stun</strong> for 1s. Ultimate charge +12.</div>
+                    </div>
+                    <div class="ab-card attack" data-a="fu" data-d="300">
+                        <div class="ab-header"><div class="ab-key">R</div><div><div class="ab-name">Earth Shaking</div><div class="ab-type">AoE Attack</div></div></div>
+                        <div class="ab-stats">
+                            <div class="ab-stat">💥 <span data-i18n="ab.dmg">Damage:</span> <span class="val dmg">35</span></div>
+                            <div class="ab-stat">⏱ <span data-i18n="ab.cd">Cooldown:</span> <span class="val cd">12s</span></div>
+                            <div class="ab-stat">🎯 <span data-i18n="ab.targets">Targets:</span> <span class="val">5</span></div>
+                            <div class="ab-stat">🐌 <span data-i18n="ab.slow">Slow:</span> <span class="val">50% / 2s</span></div>
+                        </div>
+                        <div class="ab-effect" data-i18n="ab.zomb_m4_fx">Massive AoE (24×10×24). Knockback H:40 V:30. Guaranteed <strong>Slow 50%</strong> for 2s. Ultimate charge +10.</div>
+                    </div>
+                    <div class="ab-card ultimate" data-a="fu" data-d="400">
+                        <span class="ab-passive-badge ult-type">⚡ ULTIMATE</span>
+                        <div class="ab-header"><div class="ab-key">T</div><div><div class="ab-name">Ulti-Jump</div><div class="ab-type">Ultimate Leap</div></div></div>
+                        <div class="ab-stats">
+                            <div class="ab-stat">💥 <span data-i18n="ab.dmg">Damage:</span> <span class="val dmg">80</span></div>
+                            <div class="ab-stat">🔋 <span data-i18n="ab.charge">Charge:</span> <span class="val">100</span></div>
+                            <div class="ab-stat">🩸 <span data-i18n="ab.vamp">Vampirism:</span> <span class="val">20%</span></div>
+                            <div class="ab-stat">😱 <span data-i18n="ab.fear">Fear:</span> <span class="val">3s</span></div>
+                        </div>
+                        <div class="ab-effect" data-i18n="ab.zomb_ult_fx">Leap (H:50 D:40). Screamer (2.5s, shake 5, FOV 30). Slow-motion 0.3× for 1.5s. Red flash. Screen shake 2.0 for 1s. <strong>Fear</strong> (speed ×0.3, 3s). Charge: 35/kill, 3/hit.</div>
+                    </div>
+                    <div class="ab-card passive" data-a="fu" data-d="500">
+                        <span class="ab-passive-badge passive-type">🔄 PASSIVE</span>
+                        <div class="ab-header"><div class="ab-key">—</div><div><div class="ab-name">Undead Army</div><div class="ab-type">Passive — Spawn Minions</div></div></div>
+                        <div class="ab-effect" data-i18n="ab.zomb_pass_fx">50% chance to spawn a <strong>Zombie Minion</strong> on kill. Max 3 minions. Duration: 30s. Minion stats: 50 HP, 10 DMG, 14 Speed.</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- CHIPSIK -->
+            <div class="ab-content" id="ab-chipsik">
+                <div class="ab-grid">
+                    <div class="ab-card projectile" data-a="fu">
+                        <div class="ab-header"><div class="ab-key">Q</div><div><div class="ab-name">Stun Bomb</div><div class="ab-type">Timed Bomb</div></div></div>
+                        <div class="ab-stats">
+                            <div class="ab-stat">💥 <span data-i18n="ab.dmg">Damage:</span> <span class="val">0</span></div>
+                            <div class="ab-stat">⏱ <span data-i18n="ab.cd">Cooldown:</span> <span class="val cd">30s</span></div>
+                            <div class="ab-stat">💣 <span data-i18n="ab.fuse">Fuse:</span> <span class="val">3s</span></div>
+                            <div class="ab-stat">📡 <span data-i18n="ab.radius">Radius:</span> <span class="val">18</span></div>
+                        </div>
+                        <div class="ab-effect" data-i18n="ab.chip_m1_fx">Throwable bomb (speed 80, gravity 90). Explodes after 3s fuse. Applies <strong>Stun 3s</strong> and <strong>Blind 4s</strong> to killers only. Shows timer above bomb.</div>
+                    </div>
+                    <div class="ab-card heal" data-a="fu" data-d="100">
+                        <div class="ab-header"><div class="ab-key">E</div><div><div class="ab-name">Eat Chips</div><div class="ab-type">Consumable Heal</div></div></div>
+                        <div class="ab-stats">
+                            <div class="ab-stat">💚 <span data-i18n="ab.heal">Heal:</span> <span class="val heal">40 HP</span></div>
+                            <div class="ab-stat">⏱ <span data-i18n="ab.cd">Cooldown:</span> <span class="val cd">25s</span></div>
+                            <div class="ab-stat">📦 <span data-i18n="ab.uses">Uses:</span> <span class="val">3</span></div>
+                            <div class="ab-stat">⏳ <span data-i18n="ab.cast">Cast:</span> <span class="val">1.5s</span></div>
+                        </div>
+                        <div class="ab-effect" data-i18n="ab.chip_m2_fx">Heals 40 HP over 4s. Cannot move while eating (1.5s cast). Limited to 3 uses per round.</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- DISFAIF -->
+            <div class="ab-content" id="ab-disfaif">
+                <div class="ab-grid">
+                    <div class="ab-card heal" data-a="fu">
+                        <div class="ab-header"><div class="ab-key">Q</div><div><div class="ab-name">Shot Potion</div><div class="ab-type">Throwable Potion</div></div></div>
+                        <div class="ab-stats">
+                            <div class="ab-stat">💚 <span data-i18n="ab.heal">Heal:</span> <span class="val heal">35 HP</span></div>
+                            <div class="ab-stat">⏱ <span data-i18n="ab.cd">Cooldown:</span> <span class="val cd">45s</span></div>
+                            <div class="ab-stat">🚀 <span data-i18n="ab.speed">Speed:</span> <span class="val">60</span></div>
+                            <div class="ab-stat">⏳ <span data-i18n="ab.ground">Ground:</span> <span class="val">10s</span></div>
+                        </div>
+                        <div class="ab-effect" data-i18n="ab.dis_m1_fx">Throw a healing potion that lands on the ground. Stays for 10s. Allies can pick it up within 8 radius to heal 35 HP.</div>
+                    </div>
+                    <div class="ab-card heal" data-a="fu" data-d="100">
+                        <div class="ab-header"><div class="ab-key">E</div><div><div class="ab-name">Bag of Potions</div><div class="ab-type">Placeable Heal Zone</div></div></div>
+                        <div class="ab-stats">
+                            <div class="ab-stat">💚 <span data-i18n="ab.hps">Heal/sec:</span> <span class="val heal">3 HP/s</span></div>
+                            <div class="ab-stat">⏱ <span data-i18n="ab.cd">Cooldown:</span> <span class="val cd">35s</span></div>
+                            <div class="ab-stat">📡 <span data-i18n="ab.radius">Radius:</span> <span class="val">15</span></div>
+                            <div class="ab-stat">❤️ <span data-i18n="ab.hp">Bag HP:</span> <span class="val">150</span></div>
+                        </div>
+                        <div class="ab-effect" data-i18n="ab.dis_m2_fx">Places a healing bag. Heals 3 HP/s to all allies in 15 radius for 15s. Killers can destroy it (150 HP).</div>
+                    </div>
+                    <div class="ab-card passive" data-a="fu" data-d="200">
+                        <span class="ab-passive-badge passive-type">🔄 PASSIVE</span>
+                        <div class="ab-header"><div class="ab-key">F</div><div><div class="ab-name">Field Medic</div><div class="ab-type">Passive — Carry Survivor</div></div></div>
+                        <div class="ab-effect" data-i18n="ab.dis_pass_fx">Press F near a downed survivor to carry them. While carrying, gain +5 speed boost for 5s. Pickup radius: 4 studs.</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ALOSHA1112 -->
+            <div class="ab-content" id="ab-alosha">
+                <div class="ab-grid">
+                    <div class="ab-card vision" data-a="fu">
+                        <div class="ab-header"><div class="ab-key">E</div><div><div class="ab-name">Killer Vision</div><div class="ab-type">Reveal</div></div></div>
+                        <div class="ab-stats">
+                            <div class="ab-stat">👁 <span data-i18n="ab.dur">Duration:</span> <span class="val">5s</span></div>
+                            <div class="ab-stat">⏱ <span data-i18n="ab.cd">Cooldown:</span> <span class="val cd">35s</span></div>
+                            <div class="ab-stat">📡 <span data-i18n="ab.radius">Radius:</span> <span class="val">200</span></div>
+                            <div class="ab-stat">🎯 <span data-i18n="ab.targets">Targets:</span> <span class="val" data-i18n="ab.killersonly">Killers</span></div>
+                        </div>
+                        <div class="ab-effect" data-i18n="ab.al_m1_fx">Reveals all killers within 200 radius with red highlight for 5s. Highlights visible through walls.</div>
+                    </div>
+                    <div class="ab-card buff" data-a="fu" data-d="100">
+                        <div class="ab-header"><div class="ab-key">Q</div><div><div class="ab-name">Don't Hit Me</div><div class="ab-type">Damage Reduction</div></div></div>
+                        <div class="ab-stats">
+                            <div class="ab-stat">🛡 <span data-i18n="ab.shield">Shield:</span> <span class="val">100%</span></div>
+                            <div class="ab-stat">⏱ <span data-i18n="ab.cd">Cooldown:</span> <span class="val cd">30s</span></div>
+                            <div class="ab-stat">⏳ <span data-i18n="ab.dur">Duration:</span> <span class="val">5s</span></div>
+                            <div class="ab-stat">🎨 <span data-i18n="ab.color">Color:</span> <span class="val" style="color:#60a5fa">Blue</span></div>
+                        </div>
+                        <div class="ab-effect" data-i18n="ab.al_m2_fx">Complete damage immunity for 5s. Blue shield effect visible to all players. 30s cooldown.</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Characters -->
+    <section class="section characters" id="characters">
+        <div class="container">
+            <div class="sec-h" data-a="fu">
+                <h2 class="sec-t"><span class="t-dec">⚔</span><span data-i18n="ch.t">Survivors</span><span class="t-dec">⚔</span></h2>
+                <div class="t-line"></div>
+                <p class="sec-sub" data-i18n="ch.sub">Those who still fight for survival</p>
+            </div>
+            <div class="chars-grid">
+                <div class="char-card" data-a="fu" data-d="0">
+                    <div class="char-avatar"><div class="avatar-ph"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M20 6h-4V4c0-1.1-.9-2-2-2h-4c-1.1 0-2 .9-2 2v2H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2zM10 4h4v2h-4V4zm6 11h-3v3h-2v-3H8v-2h3v-3h2v3h3v2z"/></svg></div></div>
+                    <h3 class="char-name">Disfaif</h3>
+                    <span class="char-role" data-i18n="ch.dis_r">Local Doctor</span>
+                    <p class="char-desc" data-i18n="ch.dis_d">Heals wounds and saves lives. Throws healing potions and places healing zones for the team.</p>
+                    <div class="char-status"><span class="heartbeat"></span> <span data-i18n="ch.alive">Alive</span></div>
+                </div>
+                <div class="char-card" data-a="fu" data-d="100">
+                    <div class="char-avatar"><div class="avatar-ph"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M18 4V3c0-.55-.45-1-1-1H5c-.55 0-1 .45-1 1v4c0 .55.45 1 1 1h12c.55 0 1-.45 1-1V6h1v4H9v11c0 .55.45 1 1 1h2c.55 0 1-.45 1-1v-9h8V4h-3z"/></svg></div></div>
+                    <h3 class="char-name">Chipsik</h3>
+                    <span class="char-role" data-i18n="ch.chip_r">Graffiti Hooligan</span>
+                    <p class="char-desc" data-i18n="ch.chip_d">Throws stun bombs to blind killers. Eats chips to heal. Bold and fearless street kid.</p>
+                    <div class="char-status"><span class="heartbeat"></span> <span data-i18n="ch.alive">Alive</span></div>
+                </div>
+                <div class="char-card" data-a="fu" data-d="200">
+                    <div class="char-avatar"><div class="avatar-ph"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M9.4 16.6L4.8 12l4.6-4.6L8 6l-6 6 6 6 1.4-1.4zm5.2 0l4.6-4.6-4.6-4.6L16 6l6 6-6 6-1.4-1.4z"/></svg></div></div>
+                    <h3 class="char-name">Alosha1112</h3>
+                    <span class="char-role" data-i18n="ch.al_r">Smart & Resourceful</span>
+                    <p class="char-desc" data-i18n="ch.al_d">Reveals killer positions and grants full damage immunity. The brain of the team.</p>
+                    <div class="char-status"><span class="heartbeat"></span> <span data-i18n="ch.alive">Alive</span></div>
+                </div>
+            </div>
+            <div class="ant-sec" data-a="fs">
+                <div class="ant-card" id="obsCard">
+                    <div class="ant-glitch"></div>
+                    <div class="ant-c">
+                        <div class="ant-icon"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z"/></svg></div>
+                        <h3>OBSERVER</h3>
+                        <span class="ant-role" data-i18n="ch.obs_r">Antagonist • Mysterious Scientist</span>
+                        <p data-i18n="ch.obs_d">The one behind all experiments. His motives are unknown. His methods — inhumane. He watches everything.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Killers -->
+    <section class="section killers" id="killers">
+        <div class="container">
+            <div class="sec-h" data-a="fu">
+                <h2 class="sec-t"><span class="t-dec">💀</span><span data-i18n="kl.t">Killers</span><span class="t-dec">💀</span></h2>
+                <div class="t-line"></div>
+                <p class="sec-sub" data-i18n="kl.sub">Those you must run from</p>
+            </div>
+            <div class="killers-grid">
+                <div class="k-card" data-a="fu" data-d="0">
+                    <div class="k-avatar"><div class="k-av-in dute"><svg viewBox="0 0 24 24" fill="currentColor" style="color:#ff4444"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm-5-9c.83 0 1.5-.67 1.5-1.5S7.83 8 7 8s-1.5.67-1.5 1.5S6.17 11 7 11zm10 0c.83 0 1.5-.67 1.5-1.5S17.83 8 17 8s-1.5.67-1.5 1.5.67 1.5 1.5 1.5zM12 17.5c2.33 0 4.31-1.46 5.11-3.5H6.89c.8 2.04 2.78 3.5 5.11 3.5z"/></svg></div></div>
+                    <h3 class="k-name dn">DUTE</h3>
+                    <div class="k-sub" data-i18n="kl.dute_sub">Red Monster</div>
+                    <div style="text-align:center"><span class="k-tag spirit" data-i18n="kl.dute_tag">👻 Spirit Killer</span></div>
+                    <p class="k-lore" data-i18n="kl.dute_lore">Not an experiment — Dute is a spirit born from tragedy and pain.</p>
+                    <div class="k-quote" data-i18n="kl.dute_q">Dute was once human and had a best friend. One day Dute fell ill with a fatal disease. His friend tried to help but only made it worse... Now Dute is a spirit consumed by rage, unable to find peace.</div>
+                </div>
+                <div class="k-card" data-a="fu" data-d="100">
+                    <div class="k-avatar"><div class="k-av-in zombie"><svg viewBox="0 0 24 24" fill="currentColor" style="color:#4ade80"><path d="M12 2a9 9 0 0 0-9 9c0 3.88 2.46 7.18 5.9 8.44L12 22l3.1-2.56A9.003 9.003 0 0 0 21 11a9 9 0 0 0-9-9zm0 16c-3.87 0-7-3.13-7-7s3.13-7 7-7 7 3.13 7 7-3.13 7-7 7zm-2.5-8a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3zm5 0a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3zM12 17c2.21 0 4-1.34 4-3h-8c0 1.66 1.79 3 4 3z"/></svg></div></div>
+                    <h3 class="k-name zn">ZOMBIE</h3>
+                    <div class="k-sub">Mutant</div>
+                    <div style="text-align:center"><span class="k-tag exp" data-i18n="kl.zomb_tag">🧬 Experiment #14</span></div>
+                    <p class="k-lore" data-i18n="kl.zomb_lore">Result of Observer's dangerous experiments. A mutated zombie with four arms and exposed skull.</p>
+                    <div class="k-quote" data-i18n="kl.zomb_q">A former human, victim of experiments. His body mutated beyond recognition — four arms tear everything in their path. Nothing human remains.</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Poll -->
+    <section class="section poll" id="poll">
+        <div class="container">
+            <div class="sec-h" data-a="fu">
+                <h2 class="sec-t"><span class="t-dec">📊</span><span data-i18n="poll.t">Community Poll</span><span class="t-dec">📊</span></h2>
+                <div class="t-line"></div>
+            </div>
+            <div class="poll-container" data-a="fu">
+                <div class="poll-card">
+                    <div class="poll-q" data-i18n="poll.q">Which killer is scarier?</div>
+                    <div class="poll-options" id="pollOpts">
+                        <div class="poll-opt" data-vote="dute">
+                            <div class="poll-opt-bar" id="pollBar1"></div>
+                            <span class="poll-opt-icon">👹</span>
+                            <span class="poll-opt-name">Dute</span>
+                            <span class="poll-opt-pct" id="pollPct1">—</span>
+                        </div>
+                        <div class="poll-opt" data-vote="zombie">
+                            <div class="poll-opt-bar" id="pollBar2"></div>
+                            <span class="poll-opt-icon">🧟</span>
+                            <span class="poll-opt-name">Zombie</span>
+                            <span class="poll-opt-pct" id="pollPct2">—</span>
+                        </div>
+                    </div>
+                    <div class="poll-total" id="pollTotal"></div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Wallpaper Generator -->
+    <section class="section wallpaper" id="wallpaper">
+        <div class="container">
+            <div class="sec-h" data-a="fu">
+                <h2 class="sec-t"><span class="t-dec">🎨</span><span data-i18n="wp.t">Wallpaper Generator</span><span class="t-dec">🎨</span></h2>
+                <div class="t-line"></div>
+                <p class="sec-sub" data-i18n="wp.sub">Create your own Releted wallpaper</p>
+            </div>
+            <div class="wp-container" data-a="fu">
+                <div class="wp-card">
+                    <div class="wp-preview"><canvas id="wpCanvas" width="960" height="540"></canvas></div>
+                    <div class="wp-controls">
+                        <div class="wp-color c-red active" data-color="red" title="Red"></div>
+                        <div class="wp-color c-dark" data-color="dark" title="Dark Red"></div>
+                        <div class="wp-color c-blue" data-color="blue" title="Blue"></div>
+                        <div class="wp-color c-purple" data-color="purple" title="Purple"></div>
+                        <div class="wp-color c-green" data-color="green" title="Green"></div>
+                    </div>
+                    <button class="wp-dl-btn" id="wpDownload" data-i18n="wp.download">Download Wallpaper</button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Music -->
+    <section class="section music" id="music">
+        <div class="container">
+            <div class="sec-h" data-a="fu">
+                <h2 class="sec-t"><span class="t-dec">♪</span><span data-i18n="mu.t">Music</span><span class="t-dec">♪</span></h2>
+                <div class="t-line"></div>
+                <p class="sec-sub" data-i18n="mu.sub">Game Soundtrack</p>
+            </div>
+            <div class="mp-c" data-a="fu">
+                <div class="mp">
+                    <div class="mp-vis" id="mpVis">
+                        <div class="mp-bar"></div><div class="mp-bar"></div><div class="mp-bar"></div><div class="mp-bar"></div><div class="mp-bar"></div>
+                        <div class="mp-bar"></div><div class="mp-bar"></div><div class="mp-bar"></div><div class="mp-bar"></div><div class="mp-bar"></div>
+                        <div class="mp-bar"></div><div class="mp-bar"></div><div class="mp-bar"></div><div class="mp-bar"></div><div class="mp-bar"></div>
+                        <div class="mp-bar"></div><div class="mp-bar"></div><div class="mp-bar"></div><div class="mp-bar"></div><div class="mp-bar"></div>
+                    </div>
+                    <div class="mp-name">Normal LMS Music</div>
+                    <div class="mp-desc" data-i18n="mu.desc">Releted — Main Round Theme</div>
+                    <div class="mp-prog-c">
+                        <div class="mp-prog" id="mpProg"><div class="mp-fill" id="mpFill"></div></div>
+                        <div class="mp-time"><span id="mpCur">0:00</span><span id="mpTot">0:00</span></div>
+                    </div>
+                    <div class="mp-ctrl">
+                        <button class="m-btn" id="mpRestart" title="Restart"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M6 6h2v12H6zm3.5 6l8.5 6V6z"/></svg></button>
+                        <button class="m-play" id="mpPlay" title="Play"><svg viewBox="0 0 24 24" fill="currentColor" id="mpIcon"><path d="M8 5v14l11-7z"/></svg></button>
+                        <button class="m-btn" id="mpStop" title="Stop"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M6 6h12v12H6z"/></svg></button>
+                    </div>
+                    <div class="vol-c">
+                        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02z"/></svg>
+                        <input type="range" class="vol-sl" id="volSl" min="0" max="100" value="70">
+                        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z"/></svg>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Links -->
+    <section class="section links" id="links">
+        <div class="container">
+            <div class="sec-h" data-a="fu">
+                <h2 class="sec-t"><span class="t-dec">★</span><span data-i18n="ln.t">Join Us</span><span class="t-dec">★</span></h2>
+                <div class="t-line"></div>
+                <p class="sec-sub" data-i18n="ln.sub">Find us on all platforms</p>
+            </div>
+            <div class="links-grid">
+                <a href="https://www.roblox.com/games/134447510894020/Releted" target="_blank" class="l-card" data-a="fu" data-d="0">
+                    <div class="l-icon roblox"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M5.164 0L.16 18.928 18.836 24l5.004-18.928L5.164 0zm9.086 14.072l-4.248-1.12 1.12-4.248 4.248 1.12-1.12 4.248z"/></svg></div>
+                    <div><h3 data-i18n="ln.roblox">Play on Roblox</h3><p data-i18n="ln.roblox_d">Launch Releted now</p></div>
+                    <span class="l-arrow">→</span>
+                </a>
+                <a href="https://discord.gg/3SyPtf2Erd" target="_blank" class="l-card" data-a="fu" data-d="100">
+                    <div class="l-icon discord"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M20.317 4.37a19.79 19.79 0 00-4.885-1.515.074.074 0 00-.079.037c-.21.375-.444.865-.608 1.25a18.27 18.27 0 00-5.487 0 12.64 12.64 0 00-.618-1.25.077.077 0 00-.079-.037A19.74 19.74 0 003.677 4.37a.07.07 0 00-.032.027C.533 9.046-.32 13.58.099 18.057a.082.082 0 00.031.057 19.9 19.9 0 005.993 3.03.078.078 0 00.084-.028c.462-.63.874-1.295 1.226-1.994a.076.076 0 00-.041-.106 13.11 13.11 0 01-1.872-.892.077.077 0 01-.008-.128c.126-.094.252-.192.372-.291a.074.074 0 01.078-.01c3.928 1.793 8.18 1.793 12.062 0a.074.074 0 01.078.01c.12.099.246.198.373.292a.077.077 0 01-.006.127 12.3 12.3 0 01-1.873.892.076.076 0 00-.041.107c.36.698.772 1.363 1.225 1.993a.076.076 0 00.084.028 19.84 19.84 0 006.002-3.03.077.077 0 00.031-.056c.5-5.177-.838-9.674-3.549-13.66a.06.06 0 00-.031-.028zM8.02 15.33c-1.183 0-2.157-1.086-2.157-2.419 0-1.333.956-2.419 2.157-2.419 1.21 0 2.176 1.096 2.157 2.42 0 1.332-.956 2.418-2.157 2.418zm7.975 0c-1.183 0-2.157-1.086-2.157-2.419 0-1.333.955-2.419 2.157-2.419 1.21 0 2.176 1.096 2.157 2.42 0 1.332-.946 2.418-2.157 2.418z"/></svg></div>
+                    <div><h3 data-i18n="ln.discord">Discord Server</h3><p data-i18n="ln.discord_d">Chat with community</p></div>
+                    <span class="l-arrow">→</span>
+                </a>
+                <a href="https://www.roblox.com/communities/35728231/Spark-of-Hope-Games#!/about" target="_blank" class="l-card" data-a="fu" data-d="200">
+                    <div class="l-icon community"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z"/></svg></div>
+                    <div><h3>Roblox Community</h3><p>Spark of Hope Games</p></div>
+                    <span class="l-arrow">→</span>
+                </a>
+                <a href="https://t.me/+kIyKVjjfq69lYTli" target="_blank" class="l-card" data-a="fu" data-d="300">
+                    <div class="l-icon telegram"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M11.944 0A12 12 0 000 12a12 12 0 0012 12 12 12 0 0012-12A12 12 0 0012 0h-.056zm4.962 7.224c.1-.002.321.023.465.14a.506.506 0 01.171.325c.016.093.036.306.02.472-.18 1.898-.962 6.502-1.36 8.627-.168.9-.499 1.201-.82 1.23-.696.065-1.225-.46-1.9-.902-1.056-.693-1.653-1.124-2.678-1.8-1.185-.78-.417-1.21.258-1.91.177-.184 3.247-2.977 3.307-3.23.007-.032.014-.15-.056-.212s-.174-.041-.249-.024c-.106.024-1.793 1.14-5.061 3.345-.48.33-.913.49-1.302.48-.428-.008-1.252-.241-1.865-.44-.752-.245-1.349-.374-1.297-.789.027-.216.325-.437.893-.663 3.498-1.524 5.83-2.529 6.998-3.014 3.332-1.386 4.025-1.627 4.476-1.635z"/></svg></div>
+                    <div><h3>Telegram</h3><p data-i18n="ln.tg_d">News and updates</p></div>
+                    <span class="l-arrow">→</span>
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="f-blood"></div>
+        <div class="container">
+            <div class="f-c">
+                <div class="f-logo"><img src="ReletedLogo.png" alt="Releted"><span>RELETED</span></div>
+                <p class="f-text" data-i18n="ft.text">Releted — horror game prototype on Roblox</p>
+                <p class="f-dev"><span data-i18n="ft.dev">Developed by:</span> <strong>Spark of Hope Games</strong></p>
+                <div class="f-div"></div>
+                <p class="f-copy">© 2024-2025 Releted. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+    <script>
+// ========================================
+// ПЕРЕВОДЫ — 5 ЯЗЫКОВ (ПОЛНЫЕ)
+// ========================================
+var T = {
+en: {
+'nav.home':'Home','nav.story':'Story','nav.progress':'Progress','nav.abilities':'Abilities',
+'nav.characters':'Characters','nav.killers':'Killers','nav.poll':'Poll','nav.wallpaper':'Wallpaper',
+'nav.music':'Music','nav.links':'Links',
+'hero.ver':'VERSION: PROTOTYPE','hero.tag':'Experiments have begun. Survival is not guaranteed.',
+'hero.play':'Play','hero.learn':'Learn More','hero.scroll':'Scroll Down',
+'cd.label':'Time Until Release','cd.date':'July 6, 2026',
+'cd.days':'days','cd.hours':'hours','cd.min':'minutes','cd.sec':'seconds',
+'about.t':'Story','about.c1t':'Disappearances',
+'about.c1p':'People are disappearing in a small town. Nobody knows where they go or who is behind it. Fear and panic grip the streets.',
+'about.c2p':'Behind everything stands a mysterious scientist named <strong>Observer</strong>. He kidnaps people and conducts dangerous experiments, turning some into monsters.',
+'about.c3t':'Survival',
+'about.c3p':'Others are forced to survive against these creatures in enclosed locations. A small group tries to escape before it\'s too late.',
+'about.q':'A small group of survivors tries to understand what is happening and escape before it\'s too late...',
+'prog.t':'Development Progress','prog.sub':'Current state of development',
+'prog.killers':'Killers','prog.killers_d':'2 of 5 planned killers implemented',
+'prog.maps':'Maps','prog.maps_d':'1 of 5 planned maps completed',
+'prog.abilities_p':'Abilities System','prog.abilities_d':'Core ability system with combos & ultimates',
+'prog.survivors_p':'Survivors','prog.survivors_d':'3 survivors with unique abilities',
+'prog.ui':'UI & Effects','prog.ui_d':'HUD, screamer effects, screen shakes',
+'prog.sounds':'Sound & Music','prog.sounds_d':'Ambient sounds, ability SFX, soundtrack',
+'ab.t':'Abilities','ab.sub':'Full ability breakdown for every character',
+'ab.dmg':'Damage:','ab.cd':'Cooldown:','ab.targets':'Targets:','ab.vamp':'Vampirism:',
+'ab.dist':'Distance:','ab.height':'Height:','ab.radius':'Radius:','ab.reveal':'Highlight:',
+'ab.slow':'Slow:','ab.charge':'Charge:','ab.fear':'Fear:','ab.pull':'Pull:','ab.stun':'Stun:',
+'ab.speed':'Speed:','ab.gravity':'Gravity:','ab.kb':'Knockback:','ab.fuse':'Fuse:',
+'ab.heal':'Heal:','ab.uses':'Uses:','ab.cast':'Cast:','ab.hps':'Heal/sec:','ab.hp':'Bag HP:',
+'ab.ground':'Ground:','ab.dur':'Duration:','ab.shield':'Shield:','ab.color':'Color:',
+'ab.killersonly':'Killers',
+'ab.dute_m1_fx':'Knockback (H:40 V:20). Frame hitboxes with 15 frames. Charges ultimate by 4.',
+'ab.dute_m2_fx':'Damage scales with distance. At 30+ studs causes <strong>Bleed</strong> (5 dmg/s for 3s). Hits up to 3 targets. Knockback H:50 V:20.',
+'ab.dute_m3_fx':'Controllable mid-air jump. Landing creates AoE hitbox (12×8×12). Knockback on landing.',
+'ab.dute_m4_fx':'Reveals all survivors in 60 radius with red highlight for 8s. Applies <strong>Slow 50%</strong> for 5s and <strong>Root</strong> for 2s.',
+'ab.dute_ult_fx':'Teleports to target. Screamer effect (2.5s, FOV 25, shake 6). Slow-motion 0.2× for 2s. Black flash. Applies <strong>Fear</strong> (speed ×0.3, abilities disabled for 3s). Charge: 40/kill, 4/hit.',
+'ab.dute_pass_fx':'30% chance to <strong>Mark</strong> a target on hit. Marked targets take 25% more damage for 10s. Hitting marked targets causes <strong>Darkness</strong> screen effect for 10s.',
+'ab.zomb_m1_fx':'25% chance to apply <strong>Bleed</strong> (5 dmg/s for 4s). 12 frame hitboxes. Ultimate charge +5.',
+'ab.zomb_m2_fx':'Throwable projectile with gravity arc. 3s lifetime. Ultimate charge +8.',
+'ab.zomb_m3_fx':'Large AoE (16×10×16). Pulls target toward Zombie with 100 force. Guaranteed <strong>Stun</strong> for 1s. Ultimate charge +12.',
+'ab.zomb_m4_fx':'Massive AoE (24×10×24). Knockback H:40 V:30. Guaranteed <strong>Slow 50%</strong> for 2s. Ultimate charge +10.',
+'ab.zomb_ult_fx':'Leap (H:50 D:40). Screamer (2.5s, shake 5, FOV 30). Slow-motion 0.3× for 1.5s. Red flash. Screen shake 2.0 for 1s. <strong>Fear</strong> (speed ×0.3, 3s). Charge: 35/kill, 3/hit.',
+'ab.zomb_pass_fx':'50% chance to spawn a <strong>Zombie Minion</strong> on kill. Max 3 minions. Duration: 30s. Minion stats: 50 HP, 10 DMG, 14 Speed.',
+'ab.chip_m1_fx':'Throwable bomb (speed 80, gravity 90). Explodes after 3s fuse. Applies <strong>Stun 3s</strong> and <strong>Blind 4s</strong> to killers only. Shows timer above bomb.',
+'ab.chip_m2_fx':'Heals 40 HP over 4s. Cannot move while eating (1.5s cast). Limited to 3 uses per round.',
+'ab.dis_m1_fx':'Throw a healing potion that lands on the ground. Stays for 10s. Allies can pick it up within 8 radius to heal 35 HP.',
+'ab.dis_m2_fx':'Places a healing bag. Heals 3 HP/s to all allies in 15 radius for 15s. Killers can destroy it (150 HP).',
+'ab.dis_pass_fx':'Press F near a downed survivor to carry them. While carrying, gain +5 speed boost for 5s. Pickup radius: 4 studs.',
+'ab.al_m1_fx':'Reveals all killers within 200 radius with red highlight for 5s. Highlights visible through walls.',
+'ab.al_m2_fx':'Complete damage immunity for 5s. Blue shield effect visible to all players. 30s cooldown.',
+'ch.t':'Survivors','ch.sub':'Those who still fight for survival',
+'ch.dis_r':'Local Doctor','ch.dis_d':'Heals wounds and saves lives. Throws healing potions and places healing zones for the team.',
+'ch.chip_r':'Graffiti Hooligan','ch.chip_d':'Throws stun bombs to blind killers. Eats chips to heal. Bold and fearless street kid.',
+'ch.al_r':'Smart & Resourceful','ch.al_d':'Reveals killer positions and grants full damage immunity. The brain of the team.',
+'ch.alive':'Alive','ch.obs_r':'Antagonist • Mysterious Scientist',
+'ch.obs_d':'The one behind all experiments. His motives are unknown. His methods — inhumane. He watches everything.',
+'kl.t':'Killers','kl.sub':'Those you must run from',
+'kl.dute_sub':'Red Monster','kl.dute_tag':'👻 Spirit Killer',
+'kl.dute_lore':'Not an experiment — Dute is a spirit born from tragedy and pain.',
+'kl.dute_q':'Dute was once human and had a best friend. One day Dute fell ill with a fatal disease. His friend tried to help but only made it worse... Now Dute is a spirit consumed by rage, unable to find peace.',
+'kl.zomb_tag':'🧬 Experiment #14',
+'kl.zomb_lore':'Result of Observer\'s dangerous experiments. A mutated zombie with four arms and exposed skull.',
+'kl.zomb_q':'A former human, victim of experiments. His body mutated beyond recognition — four arms tear everything in their path. Nothing human remains.',
+'poll.t':'Community Poll','poll.q':'Which killer is scarier?',
+'wp.t':'Wallpaper Generator','wp.sub':'Create your own Releted wallpaper','wp.download':'Download Wallpaper',
+'mu.t':'Music','mu.sub':'Game Soundtrack','mu.desc':'Releted — Main Round Theme',
+'ln.t':'Join Us','ln.sub':'Find us on all platforms',
+'ln.roblox':'Play on Roblox','ln.roblox_d':'Launch Releted now',
+'ln.discord':'Discord Server','ln.discord_d':'Chat with community','ln.tg_d':'News and updates',
+'ft.text':'Releted — horror game prototype on Roblox','ft.dev':'Developed by:',
+'note.1':'Help us... they\'re watching...','note.2':'Don\'t trust the Observer','note.3':'Experiment #14 escaped...'
+},
+ru: {
+'nav.home':'Главная','nav.story':'Сюжет','nav.progress':'Прогресс','nav.abilities':'Способности',
+'nav.characters':'Персонажи','nav.killers':'Киллеры','nav.poll':'Опрос','nav.wallpaper':'Обои',
+'nav.music':'Музыка','nav.links':'Ссылки',
+'hero.ver':'ВЕРСИЯ: ПРОТОТИП','hero.tag':'Эксперименты начались. Выживание — не гарантировано.',
+'hero.play':'Играть','hero.learn':'Узнать больше','hero.scroll':'Листай вниз',
+'cd.label':'До релиза осталось','cd.date':'6 июля 2026 года',
+'cd.days':'дней','cd.hours':'часов','cd.min':'минут','cd.sec':'секунд',
+'about.t':'Сюжет','about.c1t':'Пропажи',
+'about.c1p':'В небольшом городе начинают пропадать люди. Никто не знает, куда они исчезают и кто за этим стоит. Страх охватывает улицы.',
+'about.c2p':'За всем стоит таинственный учёный <strong>Observer</strong>. Он похищает людей и проводит эксперименты, превращая некоторых в монстров.',
+'about.c3t':'Выживание',
+'about.c3p':'Остальных заставляют выживать против этих существ в закрытых местах. Небольшая группа пытается выбраться.',
+'about.q':'Небольшая группа выживших пытается понять, что происходит, и выбраться, пока не стало слишком поздно...',
+'prog.t':'Прогресс разработки','prog.sub':'Текущее состояние разработки',
+'prog.killers':'Киллеры','prog.killers_d':'2 из 5 запланированных киллеров готовы',
+'prog.maps':'Карты','prog.maps_d':'1 из 5 запланированных карт готова',
+'prog.abilities_p':'Система способностей','prog.abilities_d':'Основная система с комбо и ультимейтами',
+'prog.survivors_p':'Выжившие','prog.survivors_d':'3 выживших с уникальными способностями',
+'prog.ui':'Интерфейс и эффекты','prog.ui_d':'HUD, скримеры, тряска экрана',
+'prog.sounds':'Звук и музыка','prog.sounds_d':'Амбиент, звуки способностей, саундтрек',
+'ab.t':'Способности','ab.sub':'Полный разбор способностей каждого персонажа',
+'ab.dmg':'Урон:','ab.cd':'Откат:','ab.targets':'Цели:','ab.vamp':'Вампиризм:',
+'ab.dist':'Дистанция:','ab.height':'Высота:','ab.radius':'Радиус:','ab.reveal':'Подсветка:',
+'ab.slow':'Замедление:','ab.charge':'Заряд:','ab.fear':'Страх:','ab.pull':'Притяжение:',
+'ab.stun':'Оглушение:','ab.speed':'Скорость:','ab.gravity':'Гравитация:','ab.kb':'Отбрасывание:',
+'ab.fuse':'Фитиль:','ab.heal':'Лечение:','ab.uses':'Использований:','ab.cast':'Каст:',
+'ab.hps':'Лечение/сек:','ab.hp':'ХП сумки:','ab.ground':'На земле:','ab.dur':'Длительность:',
+'ab.shield':'Щит:','ab.color':'Цвет:','ab.killersonly':'Киллеры',
+'ab.dute_m1_fx':'Отбрасывание (Г:40 В:20). 15 фрейм-хитбоксов. Заряд ульты +4.',
+'ab.dute_m2_fx':'Урон зависит от дистанции. На 30+ стадов вызывает <strong>Кровотечение</strong> (5 урон/сек 3с). До 3 целей. Откидывание Г:50 В:20.',
+'ab.dute_m3_fx':'Управляемый прыжок в воздухе. При приземлении создаёт AoE хитбокс (12×8×12). Откидывание при приземлении.',
+'ab.dute_m4_fx':'Подсвечивает всех выживших в радиусе 60 красным на 8с. Накладывает <strong>Замедление 50%</strong> на 5с и <strong>Корни</strong> на 2с.',
+'ab.dute_ult_fx':'Телепортация к цели. Скример (2.5с, FOV 25, тряска 6). Замедление времени 0.2× на 2с. Чёрная вспышка. <strong>Страх</strong> (скорость ×0.3, способности отключены на 3с). Заряд: 40/убийство, 4/удар.',
+'ab.dute_pass_fx':'30% шанс <strong>Пометить</strong> цель при ударе. Помеченные получают на 25% больше урона 10с. Удар по помеченным вызывает <strong>Тьму</strong> на 10с.',
+'ab.zomb_m1_fx':'25% шанс наложить <strong>Кровотечение</strong> (5 урон/сек 4с). 12 фрейм-хитбоксов. Заряд ульты +5.',
+'ab.zomb_m2_fx':'Бросаемый снаряд с дугой. Время жизни 3с. Заряд ульты +8.',
+'ab.zomb_m3_fx':'Большой AoE (16×10×16). Притягивает цель с силой 100. Гарантированное <strong>Оглушение</strong> на 1с. Заряд ульты +12.',
+'ab.zomb_m4_fx':'Огромный AoE (24×10×24). Откидывание Г:40 В:30. Гарантированное <strong>Замедление 50%</strong> на 2с. Заряд ульты +10.',
+'ab.zomb_ult_fx':'Прыжок (В:50 Д:40). Скример (2.5с, тряска 5, FOV 30). Замедление 0.3× на 1.5с. Красная вспышка. Тряска 2.0 на 1с. <strong>Страх</strong> (скорость ×0.3, 3с). Заряд: 35/убийство, 3/удар.',
+'ab.zomb_pass_fx':'50% шанс заспавнить <strong>Зомби-миньона</strong> при убийстве. Макс 3. Длительность: 30с. Статы: 50 ХП, 10 урона, 14 скорости.',
+'ab.chip_m1_fx':'Бросаемая бомба (скорость 80, гравитация 90). Взрывается через 3с. <strong>Оглушение 3с</strong> и <strong>Ослепление 4с</strong> только на киллеров.',
+'ab.chip_m2_fx':'Лечит 40 ХП за 4с. Нельзя двигаться (каст 1.5с). Лимит 3 использования.',
+'ab.dis_m1_fx':'Бросает зелье лечения на землю. Остаётся 10с. Союзники могут подобрать в радиусе 8 для лечения 35 ХП.',
+'ab.dis_m2_fx':'Ставит сумку лечения. 3 ХП/сек всем союзникам в радиусе 15 на 15с. Киллеры могут уничтожить (150 ХП).',
+'ab.dis_pass_fx':'Нажми F рядом с павшим для переноски. Бонус скорости +5 на 5с. Радиус подбора: 4.',
+'ab.al_m1_fx':'Показывает всех киллеров в радиусе 200 красной подсветкой на 5с. Видно сквозь стены.',
+'ab.al_m2_fx':'Полная неуязвимость на 5с. Синий щит виден всем игрокам. Откат 30с.',
+'ch.t':'Выжившие','ch.sub':'Те, кто ещё борется за жизнь',
+'ch.dis_r':'Местный доктор','ch.dis_d':'Лечит раны и спасает жизни. Бросает зелья лечения и ставит зоны исцеления для команды.',
+'ch.chip_r':'Хулиган-граффитчик','ch.chip_d':'Бросает оглушающие бомбы и ест чипсы для лечения. Дерзкий уличный парень.',
+'ch.al_r':'Умный и находчивый','ch.al_d':'Раскрывает позиции киллеров и даёт полную неуязвимость. Мозг команды.',
+'ch.alive':'Жив','ch.obs_r':'Антагонист • Таинственный учёный',
+'ch.obs_d':'Тот, кто стоит за всеми экспериментами. Его мотивы неизвестны. Его методы — бесчеловечны.',
+'kl.t':'Киллеры','kl.sub':'Те, от кого нужно бежать',
+'kl.dute_sub':'Красный монстр','kl.dute_tag':'👻 Дух-убийца',
+'kl.dute_lore':'Не эксперимент — Dute это дух, порождённый трагедией и болью.',
+'kl.dute_q':'Дит раньше был человеком с лучшим другом. Однажды заболел смертельной болезнью. Друг хотел помочь, но сделал хуже... Теперь Дит — дух, одержимый яростью.',
+'kl.zomb_tag':'🧬 Эксперимент #14',
+'kl.zomb_lore':'Результат опасных экспериментов Observer\'а. Мутировавший зомби с четырьмя руками.',
+'kl.zomb_q':'Бывший человек, жертва экспериментов. Четыре руки рвут всё на своём пути. В нём не осталось ничего человеческого.',
+'poll.t':'Опрос','poll.q':'Какой киллер страшнее?',
+'wp.t':'Генератор обоев','wp.sub':'Создай свои обои Releted','wp.download':'Скачать обои',
+'mu.t':'Музыка','mu.sub':'Саундтрек игры','mu.desc':'Releted — Основная тема раунда',
+'ln.t':'Присоединяйся','ln.sub':'Найди нас на всех платформах',
+'ln.roblox':'Играть в Roblox','ln.roblox_d':'Запусти Releted сейчас',
+'ln.discord':'Discord сервер','ln.discord_d':'Общайся с сообществом','ln.tg_d':'Новости и обновления',
+'ft.text':'Releted — прототип хоррор-игры в Roblox','ft.dev':'Разработка:',
+'note.1':'Помогите... они наблюдают...','note.2':'Не доверяй Observer\'у','note.3':'Эксперимент #14 сбежал...'
+},
+ua: {
+'nav.home':'Головна','nav.story':'Сюжет','nav.progress':'Прогрес','nav.abilities':'Здібності',
+'nav.characters':'Персонажі','nav.killers':'Кілери','nav.poll':'Опитування','nav.wallpaper':'Шпалери',
+'nav.music':'Музика','nav.links':'Посилання',
+'hero.ver':'ВЕРСІЯ: ПРОТОТИП','hero.tag':'Експерименти розпочато. Виживання — не гарантовано.',
+'hero.play':'Грати','hero.learn':'Дізнатися більше','hero.scroll':'Гортай вниз',
+'cd.label':'До релізу залишилось','cd.date':'6 липня 2026 року',
+'cd.days':'днів','cd.hours':'годин','cd.min':'хвилин','cd.sec':'секунд',
+'about.t':'Сюжет','about.c1t':'Зникнення',
+'about.c1p':'У невеликому місті починають зникати люди. Ніхто не знає, куди вони йдуть. Страх охоплює вулиці.',
+'about.c2p':'За всім стоїть таємничий вчений <strong>Observer</strong>. Він викрадає людей та проводить експерименти.',
+'about.c3t':'Виживання','about.c3p':'Інших змушують виживати проти цих істот у закритих локаціях.',
+'about.q':'Невелика група вижилих намагається зрозуміти, що відбувається, і втекти...',
+'prog.t':'Прогрес розробки','prog.sub':'Поточний стан розробки',
+'prog.killers':'Кілери','prog.killers_d':'2 з 5 запланованих кілерів готові',
+'prog.maps':'Карти','prog.maps_d':'1 з 5 запланованих карт готова',
+'prog.abilities_p':'Система здібностей','prog.abilities_d':'Основна система з комбо та ультимейтами',
+'prog.survivors_p':'Вижилі','prog.survivors_d':'3 вижилих з унікальними здібностями',
+'prog.ui':'Інтерфейс','prog.ui_d':'HUD, скрімери, тряска екрану',
+'prog.sounds':'Звук і музика','prog.sounds_d':'Амбієнт, звуки здібностей, саундтрек',
+'ab.t':'Здібності','ab.sub':'Повний розбір здібностей кожного персонажа',
+'ab.dmg':'Шкода:','ab.cd':'Відкат:','ab.targets':'Цілі:','ab.vamp':'Вампіризм:',
+'ch.t':'Вижилі','ch.sub':'Ті, хто ще бореться за життя','ch.alive':'Живий',
+'ch.obs_r':'Антагоніст • Таємничий вчений','ch.obs_d':'Той, хто стоїть за всіма експериментами.',
+'kl.t':'Кілери','kl.sub':'Ті, від кого треба бігти',
+'poll.t':'Опитування','poll.q':'Який кілер страшніший?',
+'wp.t':'Генератор шпалер','wp.sub':'Створи свої шпалери Releted','wp.download':'Завантажити шпалери',
+'mu.t':'Музика','mu.sub':'Саундтрек гри','mu.desc':'Releted — Основна тема раунду',
+'ln.t':'Приєднуйся','ln.sub':'Знайди нас на всіх платформах',
+'ft.text':'Releted — прототип хоррор-гри в Roblox','ft.dev':'Розробка:',
+'note.1':'Допоможіть... вони спостерігають...','note.2':'Не довіряй Observer\'у','note.3':'Експеримент #14 втік...'
+},
+pl: {
+'nav.home':'Główna','nav.story':'Fabuła','nav.progress':'Postęp','nav.abilities':'Zdolności',
+'nav.characters':'Postacie','nav.killers':'Zabójcy','nav.poll':'Ankieta','nav.wallpaper':'Tapety',
+'nav.music':'Muzyka','nav.links':'Linki',
+'hero.ver':'WERSJA: PROTOTYP','hero.tag':'Eksperymenty się rozpoczęły. Przetrwanie nie jest gwarantowane.',
+'hero.play':'Graj','hero.learn':'Dowiedz się więcej','hero.scroll':'Przewiń w dół',
+'cd.label':'Do premiery zostało','cd.date':'6 lipca 2026',
+'cd.days':'dni','cd.hours':'godzin','cd.min':'minut','cd.sec':'sekund',
+'about.t':'Fabuła','about.c1t':'Zaginięcia',
+'about.c1p':'W małym miasteczku znikają ludzie. Nikt nie wie dokąd. Strach ogarnia ulice.',
+'about.c2p':'Za wszystkim stoi tajemniczy naukowiec <strong>Observer</strong>. Porywa ludzi i przeprowadza eksperymenty.',
+'about.c3t':'Przetrwanie','about.c3p':'Reszta musi przetrwać w zamkniętych lokacjach.',
+'about.q':'Mała grupa ocalałych próbuje zrozumieć co się dzieje i uciec...',
+'prog.t':'Postęp prac','prog.sub':'Aktualny stan rozwoju',
+'prog.killers':'Zabójcy','prog.killers_d':'2 z 5 planowanych zabójców',
+'prog.maps':'Mapy','prog.maps_d':'1 z 5 planowanych map',
+'ab.t':'Zdolności','ab.sub':'Pełny opis zdolności każdej postaci',
+'ab.dmg':'Obrażenia:','ab.cd':'Odnowienie:','ab.targets':'Cele:',
+'ch.t':'Ocalali','ch.sub':'Ci, którzy wciąż walczą','ch.alive':'Żywy',
+'kl.t':'Zabójcy','kl.sub':'Ci, przed którymi musisz uciekać',
+'poll.t':'Ankieta','poll.q':'Który zabójca jest straszniejszy?',
+'wp.t':'Generator tapet','wp.sub':'Stwórz własną tapetę Releted','wp.download':'Pobierz tapetę',
+'mu.t':'Muzyka','mu.sub':'Ścieżka dźwiękowa','mu.desc':'Releted — Główny motyw rundy',
+'ln.t':'Dołącz','ln.sub':'Znajdź nas na platformach',
+'ft.text':'Releted — prototyp horroru na Roblox','ft.dev':'Twórca:',
+'note.1':'Pomóżcie... oni obserwują...','note.2':'Nie ufaj Observerowi','note.3':'Eksperyment #14 uciekł...'
+},
+de: {
+'nav.home':'Start','nav.story':'Geschichte','nav.progress':'Fortschritt','nav.abilities':'Fähigkeiten',
+'nav.characters':'Charaktere','nav.killers':'Killer','nav.poll':'Umfrage','nav.wallpaper':'Hintergrund',
+'nav.music':'Musik','nav.links':'Links',
+'hero.ver':'VERSION: PROTOTYP','hero.tag':'Die Experimente haben begonnen. Überleben ist nicht garantiert.',
+'hero.play':'Spielen','hero.learn':'Mehr erfahren','hero.scroll':'Nach unten scrollen',
+'cd.label':'Bis zur Veröffentlichung','cd.date':'6. Juli 2026',
+'cd.days':'Tage','cd.hours':'Stunden','cd.min':'Minuten','cd.sec':'Sekunden',
+'about.t':'Geschichte','about.c1t':'Verschwinden',
+'about.c1p':'In einer Kleinstadt verschwinden Menschen. Niemand weiß wohin. Angst ergreift die Straßen.',
+'about.c2p':'Hinter allem steht ein geheimnisvoller Wissenschaftler namens <strong>Observer</strong>. Er entführt Menschen und führt Experimente durch.',
+'about.c3t':'Überleben','about.c3p':'Andere werden gezwungen gegen diese Kreaturen zu überleben.',
+'about.q':'Eine kleine Gruppe Überlebender versucht zu verstehen was passiert und zu fliehen...',
+'prog.t':'Entwicklungsfortschritt','prog.sub':'Aktueller Entwicklungsstand',
+'prog.killers':'Killer','prog.killers_d':'2 von 5 geplanten Killern fertig',
+'prog.maps':'Karten','prog.maps_d':'1 von 5 geplanten Karten fertig',
+'ab.t':'Fähigkeiten','ab.sub':'Vollständige Fähigkeitsübersicht',
+'ab.dmg':'Schaden:','ab.cd':'Abklingzeit:','ab.targets':'Ziele:',
+'ch.t':'Überlebende','ch.sub':'Die noch kämpfen','ch.alive':'Am Leben',
+'kl.t':'Killer','kl.sub':'Vor denen du fliehen musst',
+'poll.t':'Umfrage','poll.q':'Welcher Killer ist gruseliger?',
+'wp.t':'Hintergrund-Generator','wp.sub':'Erstelle dein eigenes Releted-Hintergrundbild','wp.download':'Herunterladen',
+'mu.t':'Musik','mu.sub':'Spiel-Soundtrack','mu.desc':'Releted — Hauptthema der Runde',
+'ln.t':'Mitmachen','ln.sub':'Finde uns auf allen Plattformen',
+'ft.text':'Releted — Horror-Spiel-Prototyp auf Roblox','ft.dev':'Entwickelt von:',
+'note.1':'Helft uns... sie beobachten...','note.2':'Vertraue dem Observer nicht','note.3':'Experiment #14 ist entkommen...'
+}
+};
+
+var curLang = localStorage.getItem('rel-lang') || 'en';
+
+function setLang(l) {
+    curLang = l;
+    localStorage.setItem('rel-lang', l);
+    var t = T[l] || T.en;
+    document.querySelectorAll('[data-i18n]').forEach(function(el) {
+        var k = el.getAttribute('data-i18n');
+        el.innerHTML = t[k] || T.en[k] || el.innerHTML;
+    });
+    document.getElementById('langCur').textContent = l.toUpperCase();
+    document.querySelectorAll('.lang-opt').forEach(function(o) {
+        o.classList.toggle('active', o.dataset.lang === l);
+    });
+    document.documentElement.lang = l === 'ua' ? 'uk' : l;
+}
+
+// ========================================
+// INIT
+// ========================================
+document.addEventListener('DOMContentLoaded', function() {
+    setLang(curLang);
+    initLang();
+    initParticles();
+    initCursor();
+    initNavbar();
+    initMobile();
+    initScrollAnims();
+    initActiveNav();
+    initSmooth();
+    initCountdown();
+    initMusic();
+    initHover();
+    initParallax();
+    initProgress();
+    initAbilityTabs();
+    initObsGlitch();
+    initSiren();
+    initWallNotes();
+    initPoll();
+    initWallpaper();
+    initScrollProgress();
+    initBackToTop();
+});
+
+// Lang Switcher
+function initLang() {
+    var btn = document.getElementById('langBtn'), dd = document.getElementById('langDD');
+    btn.addEventListener('click', function(e) { e.stopPropagation(); dd.classList.toggle('show'); btn.classList.toggle('open'); });
+    document.querySelectorAll('.lang-opt').forEach(function(o) {
+        o.addEventListener('click', function() { setLang(this.dataset.lang); dd.classList.remove('show'); btn.classList.remove('open'); });
+    });
+    document.addEventListener('click', function() { dd.classList.remove('show'); btn.classList.remove('open'); });
+}
+
+// Particles
+function initParticles() {
+    var c = document.getElementById('particles');
+    for (var i = 0; i < 25; i++) {
+        var p = document.createElement('div'); p.classList.add('particle');
+        var s = Math.random()*2.5+.8;
+        p.style.cssText = 'left:'+Math.random()*100+'%;width:'+s+'px;height:'+s+'px;animation-duration:'+(Math.random()*18+12)+'s;animation-delay:'+(Math.random()*12)+'s';
+        c.appendChild(p);
+    }
+}
+
+// Cursor
+function initCursor() {
+    var g = document.getElementById('cursorGlow'), mx=0, my=0, gx=0, gy=0;
+    if (!window.matchMedia('(pointer:fine)').matches) return;
+    document.addEventListener('mousemove', function(e) { mx=e.clientX; my=e.clientY; });
+    (function a() { gx+=(mx-gx)*.1; gy+=(my-gy)*.1; g.style.left=gx+'px'; g.style.top=gy+'px'; requestAnimationFrame(a); })();
+}
+
+// Navbar
+function initNavbar() {
+    var n = document.getElementById('navbar');
+    window.addEventListener('scroll', function() { n.classList.toggle('scrolled', scrollY > 50); }, {passive:true});
+}
+
+// Mobile
+function initMobile() {
+    var t = document.getElementById('navTog'), m = document.getElementById('mobMenu');
+    t.addEventListener('click', function() { t.classList.toggle('active'); m.classList.toggle('active'); document.body.style.overflow = m.classList.contains('active') ? 'hidden' : ''; });
+    m.querySelectorAll('.mob-link').forEach(function(l) { l.addEventListener('click', function() { t.classList.remove('active'); m.classList.remove('active'); document.body.style.overflow=''; }); });
+    document.addEventListener('keydown', function(e) { if(e.key==='Escape'&&m.classList.contains('active')){t.classList.remove('active');m.classList.remove('active');document.body.style.overflow='';} });
+}
+
+// Scroll Animations
+function initScrollAnims() {
+    var obs = new IntersectionObserver(function(entries) {
+        entries.forEach(function(e) { if(e.isIntersecting){setTimeout(function(){e.target.classList.add('anim')},parseInt(e.target.dataset.d)||0);obs.unobserve(e.target);} });
+    }, {threshold:.1, rootMargin:'0px 0px -50px 0px'});
+    document.querySelectorAll('[data-a]').forEach(function(el) { obs.observe(el); });
+}
+
+// Active Nav
+function initActiveNav() {
+    var secs = document.querySelectorAll('section[id]'), links = document.querySelectorAll('.nav-link'), tick = false;
+    window.addEventListener('scroll', function() {
+        if(!tick){requestAnimationFrame(function(){var cur='';secs.forEach(function(s){if(scrollY+200>=s.offsetTop&&scrollY+200<s.offsetTop+s.offsetHeight)cur=s.id});links.forEach(function(l){l.classList.toggle('active',l.getAttribute('href')==='#'+cur)});tick=false});tick=true}
+    }, {passive:true});
+}
+
+// Smooth Scroll
+function initSmooth() {
+    document.querySelectorAll('a[href^="#"]').forEach(function(a) {
+        a.addEventListener('click', function(e) { var id=this.getAttribute('href'); if(id==='#')return; var t=document.querySelector(id); if(t){e.preventDefault();window.scrollTo({top:t.offsetTop-75,behavior:'smooth'})} });
+    });
+}
+
+// Countdown
+function initCountdown() {
+    var tgt = new Date('2026-07-06T00:00:00').getTime();
+    var d=document.getElementById('cdD'),h=document.getElementById('cdH'),m=document.getElementById('cdM'),s=document.getElementById('cdS');
+    function pad(n,sz){var r='000'+n;return r.substr(r.length-sz)}
+    function upd(){var df=tgt-Date.now();if(df<=0)return;d.textContent=pad(Math.floor(df/864e5),3);h.textContent=pad(Math.floor(df%864e5/36e5),2);m.textContent=pad(Math.floor(df%36e5/6e4),2);s.textContent=pad(Math.floor(df%6e4/1e3),2)}
+    upd();setInterval(upd,1000);
+}
+
+// Dev Progress Bars
+function initProgress() {
+    var obs = new IntersectionObserver(function(entries) {
+        entries.forEach(function(e) { if(e.isIntersecting){var fills=e.target.querySelectorAll('.progress-fill');fills.forEach(function(f){f.style.width=f.dataset.pct+'%'});obs.unobserve(e.target)} });
+    }, {threshold:.3});
+    document.querySelectorAll('.progress-item').forEach(function(el) { obs.observe(el); });
+}
+
+// Ability Tabs
+function initAbilityTabs() {
+    document.querySelectorAll('.ab-tab').forEach(function(tab) {
+        tab.addEventListener('click', function() {
+            document.querySelectorAll('.ab-tab').forEach(function(t){t.classList.remove('active')});
+            document.querySelectorAll('.ab-content').forEach(function(c){c.classList.remove('active')});
+            this.classList.add('active');
+            var target = document.getElementById(this.dataset.target);
+            if(target) target.classList.add('active');
+        });
+    });
+}
+
+// Observer Glitch on Scroll
+function initObsGlitch() {
+    var card = document.getElementById('obsCard'); if(!card) return;
+    var triggered = false;
+    var obs = new IntersectionObserver(function(entries) {
+        entries.forEach(function(e) {
+            if(e.isIntersecting && !triggered){
+                triggered=true; card.classList.add('glitch-active');
+                setTimeout(function(){card.classList.remove('glitch-active')},800);
+                setTimeout(function(){triggered=false},3000);
+            }
+        });
+    }, {threshold:.5});
+    obs.observe(card);
+}
+
+// Siren on Killers section
+function initSiren() {
+    var siren = document.getElementById('sirenOverlay');
+    var killersSec = document.getElementById('killers');
+    if(!killersSec || !siren) return;
+    var obs = new IntersectionObserver(function(entries) {
+        entries.forEach(function(e) { siren.classList.toggle('active', e.isIntersecting); });
+    }, {threshold:.2});
+    obs.observe(killersSec);
+}
+
+// Wall Notes appear on scroll
+function initWallNotes() {
+    var notes = document.querySelectorAll('.wall-note');
+    var shown = false;
+    window.addEventListener('scroll', function() {
+        if(scrollY > 400 && !shown) { shown = true; notes.forEach(function(n,i){setTimeout(function(){n.classList.add('visible')},i*800)}); }
+    }, {passive:true});
+}
+
+// Poll (localStorage)
+function initPoll() {
+    var voted = localStorage.getItem('rel-poll');
+    var opts = document.querySelectorAll('.poll-opt');
+    var votes = JSON.parse(localStorage.getItem('rel-poll-data')) || {dute:47, zombie:33};
+    var total = votes.dute + votes.zombie;
+
+    function renderPoll() {
+        total = votes.dute + votes.zombie;
+        var p1 = total ? Math.round(votes.dute/total*100) : 50;
+        var p2 = total ? Math.round(votes.zombie/total*100) : 50;
+        document.getElementById('pollPct1').textContent = p1+'%';
+        document.getElementById('pollPct2').textContent = p2+'%';
+        document.getElementById('pollBar1').style.width = p1+'%';
+        document.getElementById('pollBar2').style.width = p2+'%';
+        document.getElementById('pollTotal').textContent = total + (curLang==='ru'?' голосов':curLang==='ua'?' голосів':' votes');
+    }
+
+    if(voted) { opts.forEach(function(o){o.classList.add('voted')}); renderPoll(); }
+
+    opts.forEach(function(o) {
+        o.addEventListener('click', function() {
+            if(voted) return;
+            voted = this.dataset.vote;
+            localStorage.setItem('rel-poll', voted);
+            votes[voted]++;
+            localStorage.setItem('rel-poll-data', JSON.stringify(votes));
+            opts.forEach(function(op){op.classList.add('voted')});
+            renderPoll();
+        });
+    });
+}
+
+// Wallpaper Generator
+function initWallpaper() {
+    var canvas = document.getElementById('wpCanvas');
+    var ctx = canvas.getContext('2d');
+    var currentColor = 'red';
+    var colors = {
+        red: {bg:'#1a0000',accent:'#dc2626',glow:'rgba(220,38,38,'},
+        dark: {bg:'#0a0000',accent:'#8b0000',glow:'rgba(139,0,0,'},
+        blue: {bg:'#0a1628',accent:'#3b82f6',glow:'rgba(59,130,246,'},
+        purple:{bg:'#1a0a2e',accent:'#a855f7',glow:'rgba(168,85,247,'},
+        green: {bg:'#0a1a0a',accent:'#22c55e',glow:'rgba(34,197,94,'}
+    };
+
+    function drawWallpaper() {
+        var c = colors[currentColor];
+        var w = canvas.width, h = canvas.height;
+
+        // Background
+        ctx.fillStyle = c.bg; ctx.fillRect(0,0,w,h);
+
+        // Radial glow
+        var grd = ctx.createRadialGradient(w/2,h/2,0,w/2,h/2,w*.6);
+        grd.addColorStop(0, c.glow+'.15)'); grd.addColorStop(.5, c.glow+'.05)'); grd.addColorStop(1, 'transparent');
+        ctx.fillStyle = grd; ctx.fillRect(0,0,w,h);
+
+        // Noise lines
+        ctx.strokeStyle = c.glow+'.03)';
+        for(var i=0;i<h;i+=4){ctx.beginPath();ctx.moveTo(0,i);ctx.lineTo(w,i);ctx.stroke()}
+
+        // Particles
+        for(var j=0;j<30;j++){
+            var px=Math.random()*w,py=Math.random()*h,ps=Math.random()*2+.5;
+            ctx.beginPath();ctx.arc(px,py,ps,0,Math.PI*2);ctx.fillStyle=c.glow+(Math.random()*.4+.1)+')';ctx.fill();
+        }
+
+        // Center glow
+        var cg = ctx.createRadialGradient(w/2,h/2,0,w/2,h/2,120);
+        cg.addColorStop(0,c.glow+'.3)');cg.addColorStop(1,'transparent');
+        ctx.fillStyle=cg;ctx.fillRect(0,0,w,h);
+
+        // Title
+        ctx.fillStyle = c.accent;
+        ctx.font = 'bold 72px Creepster, cursive';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.shadowColor = c.accent;
+        ctx.shadowBlur = 30;
+        ctx.fillText('RELETED', w/2, h/2 - 20);
+
+        // Subtitle
+        ctx.font = '14px "Press Start 2P", cursive';
+        ctx.fillStyle = c.glow+'.6)';
+        ctx.shadowBlur = 10;
+        ctx.fillText('HORROR GAME', w/2, h/2 + 40);
+
+        ctx.shadowBlur = 0;
+
+        // Bottom line
+        ctx.strokeStyle = c.accent;
+        ctx.lineWidth = 2;
+        ctx.globalAlpha = .3;
+        ctx.beginPath();ctx.moveTo(w*.2,h-60);ctx.lineTo(w*.8,h-60);ctx.stroke();
+        ctx.globalAlpha = 1;
+
+        // Version
+        ctx.font = '10px Inter, sans-serif';
+        ctx.fillStyle = c.glow+'.4)';
+        ctx.fillText('sparkofhopegames.com', w/2, h-35);
+    }
+
+    drawWallpaper();
+
+    // Color selection
+    document.querySelectorAll('.wp-color').forEach(function(btn) {
+        btn.addEventListener('click', function() {
+            document.querySelectorAll('.wp-color').forEach(function(b){b.classList.remove('active')});
+            this.classList.add('active');
+            currentColor = this.dataset.color;
+            drawWallpaper();
+        });
+    });
+
+    // Download
+    document.getElementById('wpDownload').addEventListener('click', function() {
+        var link = document.createElement('a');
+        link.download = 'Releted_Wallpaper_'+currentColor+'.png';
+        link.href = canvas.toDataURL('image/png');
+        link.click();
+    });
+}
+
+// Scroll Progress Bar
+function initScrollProgress() {
+    var bar = document.getElementById('scrollProg');
+    window.addEventListener('scroll', function() {
+        var h = document.documentElement.scrollHeight - innerHeight;
+        bar.style.width = (scrollY / h * 100) + '%';
+    }, {passive:true});
+}
+
+// Back to Top
+function initBackToTop() {
+    var btn = document.getElementById('backTop');
+    window.addEventListener('scroll', function() { btn.classList.toggle('show', scrollY > 500); }, {passive:true});
+    btn.addEventListener('click', function() { window.scrollTo({top:0,behavior:'smooth'}); });
+}
+
+// Music Player
+function initMusic() {
+    var fmts=['mp3','ogg','wav','webm','m4a'],audio=new Audio(),fi=0;
+    function tryLoad(){if(fi>=fmts.length)return;audio.src='NormalLmsMusic.'+fmts[fi];audio.load()}
+    audio.addEventListener('error',function(){fi++;if(fi<fmts.length)tryLoad()});
+    tryLoad();
+    var playBtn=document.getElementById('mpPlay'),icon=document.getElementById('mpIcon'),
+        stopB=document.getElementById('mpStop'),restB=document.getElementById('mpRestart'),
+        pBar=document.getElementById('mpProg'),pFill=document.getElementById('mpFill'),
+        curT=document.getElementById('mpCur'),totT=document.getElementById('mpTot'),
+        vol=document.getElementById('volSl'),bars=document.querySelectorAll('.mp-bar'),playing=false;
+    audio.volume=.7;
+    function fmt(s){if(isNaN(s)||s<0)return'0:00';return Math.floor(s/60)+':'+('0'+Math.floor(s%60)).slice(-2)}
+    function actB(){bars.forEach(function(b){b.classList.add('active')})}
+    function deaB(){bars.forEach(function(b){b.classList.remove('active')})}
+    playBtn.addEventListener('click',function(){
+        if(playing){audio.pause();playing=false;icon.innerHTML='<path d="M8 5v14l11-7z"/>';deaB()}
+        else{audio.play().then(function(){playing=true;icon.innerHTML='<path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/>';actB()}).catch(function(){})}
+    });
+    stopB.addEventListener('click',function(){audio.pause();audio.currentTime=0;playing=false;icon.innerHTML='<path d="M8 5v14l11-7z"/>';pFill.style.width='0%';curT.textContent='0:00';deaB()});
+    restB.addEventListener('click',function(){audio.currentTime=0;if(!playing){audio.play().then(function(){playing=true;icon.innerHTML='<path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/>';actB()}).catch(function(){})}});
+    audio.addEventListener('timeupdate',function(){if(audio.duration&&!isNaN(audio.duration)){pFill.style.width=(audio.currentTime/audio.duration*100)+'%';curT.textContent=fmt(audio.currentTime)}});
+    audio.addEventListener('loadedmetadata',function(){totT.textContent=fmt(audio.duration)});
+    audio.addEventListener('ended',function(){playing=false;icon.innerHTML='<path d="M8 5v14l11-7z"/>';pFill.style.width='0%';curT.textContent='0:00';deaB()});
+    pBar.addEventListener('click',function(e){if(audio.duration&&!isNaN(audio.duration)){var r=pBar.getBoundingClientRect();audio.currentTime=Math.max(0,Math.min(1,(e.clientX-r.left)/r.width))*audio.duration}});
+    vol.addEventListener('input',function(){audio.volume=this.value/100});
+}
+
+// Hover Effects
+function initHover() {
+    if(!window.matchMedia('(pointer:fine)').matches) return;
+    document.querySelectorAll('.char-card,.k-card,.story-card').forEach(function(c){
+        c.addEventListener('mousemove',function(e){
+            var r=c.getBoundingClientRect(),x=e.clientX-r.left,y=e.clientY-r.top;
+            c.style.transform='perspective(800px) rotateX('+((y-r.height/2)/r.height*-4)+'deg) rotateY('+((x-r.width/2)/r.width*4)+'deg) translateY(-6px)';
+        });
+        c.addEventListener('mouseleave',function(){c.style.transform=''});
+    });
+}
+
+// Parallax Hero
+function initParallax() {
+    var hc = document.querySelector('.hero-c');
+    window.addEventListener('scroll', function() {
+        if(scrollY < innerHeight && hc) {
+            hc.style.transform = 'translateY('+(scrollY*.25)+'px)';
+            hc.style.opacity = 1 - (scrollY/innerHeight)*1.2;
+        }
+    }, {passive:true});
+}
+
+// Konami Code Easter Egg
+(function(){
+    var code=[38,38,40,40,37,39,37,39,66,65],idx=0;
+    document.addEventListener('keydown',function(e){
+        if(e.keyCode===code[idx]){idx++;if(idx===code.length){
+            document.querySelectorAll('.t-letter').forEach(function(l){l.style.color='#ff0000';l.style.textShadow='0 0 50px #f00,0 0 100px #f00'});
+            setTimeout(function(){document.querySelectorAll('.t-letter').forEach(function(l){l.style.color='';l.style.textShadow=''})},3000);
+            idx=0;
+        }}else{idx=0}
+    });
+})();
+
+// Console Easter Egg
+console.log('%c☠ RELETED ☠', 'color:#dc2626;font-size:32px;font-family:Creepster;text-shadow:0 0 10px #ff0000');
+console.log('%cDon\'t trust the Observer...', 'color:#a3a3a3;font-size:14px;font-style:italic');
+console.log('%c██████╗ ███████╗██╗     ███████╗████████╗███████╗██████╗\n██╔══██╗██╔════╝██║     ██╔════╝╚══██╔══╝██╔════╝██╔══██╗\n██████╔╝█████╗  ██║     █████╗     ██║   █████╗  ██║  ██║\n██╔══██╗██╔══╝  ██║     ██╔══╝     ██║   ██╔══╝  ██║  ██║\n██║  ██║███████╗███████╗███████╗   ██║   ███████╗██████╔╝\n╚═╝  ╚═╝╚══════╝╚══════╝╚══════╝   ╚═╝   ╚══════╝╚═════╝', 'color:#991b1b;font-size:8px;line-height:1.2');
+</script>
+</body>
+</html>
